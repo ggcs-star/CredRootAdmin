@@ -1,137 +1,293 @@
-<aside class="w-72 bg-gradient-to-b from-slate-900 to-slate-800 text-white shadow-2xl flex flex-col h-screen sticky top-0 overflow-y-auto" id="sidebar">
-    
-    <!-- Sidebar Header with Logo -->
-    <div class="flex items-center gap-3 px-6 h-20 border-b border-white/10 flex-shrink-0">
-        <!-- Logo Icon -->
-        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
-            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-            </svg>
-        </div>
-        
-        <!-- Brand Text -->
-        <div>
-            <h2 class="text-xl font-bold tracking-tight bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
-                CredRoot
-            </h2>
-            <p class="text-[10px] text-white/40 uppercase tracking-widest">Admin Panel</p>
-        </div>
-    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CredRoot — Login</title>
 
-    <!-- Navigation -->
-    <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-        
-        <!-- Dashboard -->
-        <a href="{{ route('admin.dashboard.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-white/10 text-white shadow-lg shadow-blue-500/10 transition-all hover:bg-white/15">
-            <i class="fas fa-th-large w-5 text-center text-blue-400"></i>
-            <span>Dashboard</span>
-            <span class="ml-auto bg-white/20 px-2.5 py-0.5 rounded-full text-xs font-semibold">12</span>
-        </a>
+    <!-- Tailwind + Font Awesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-        <div class="my-4 border-t border-white/10"></div>
+    <!-- Google Font (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
-        <!-- Management Section -->
-        <p class="px-4 text-[10px] font-semibold text-white/30 uppercase tracking-wider mt-6 mb-2">Management</p>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f1f5f9;
+            min-height: 100vh;
+        }
 
-        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-all group">
-            <i class="fas fa-file-invoice w-5 text-center text-white/40 group-hover:text-blue-400 transition-colors"></i>
-            <span>Loan Applications</span>
-            <span class="ml-auto bg-amber-500/20 text-amber-400 px-2.5 py-0.5 rounded-full text-xs font-semibold">5</span>
-        </a>
+        .brand-gradient {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+        }
 
-        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-all group">
-            <i class="fas fa-users w-5 text-center text-white/40 group-hover:text-blue-400 transition-colors"></i>
-            <span>Customers</span>
-            <span class="ml-auto text-white/30 text-xs">248</span>
-        </a>
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3a5f, #0f2b4a);
+            transition: all 0.3s ease;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.25);
+        }
+        .btn-primary:active {
+            transform: translateY(0px);
+        }
 
-        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-all group">
-            <i class="fas fa-university w-5 text-center text-white/40 group-hover:text-blue-400 transition-colors"></i>
-            <span>Lenders</span>
-            <span class="ml-auto text-white/30 text-xs">32</span>
-        </a>
+        .input-field {
+            border: 1.5px solid #e2e8f0;
+            transition: all 0.2s ease;
+            background: #fafbfc;
+        }
+        .input-field:focus {
+            border-color: #1e3a5f;
+            box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.15);
+            background: white;
+        }
 
-        <div class="my-4 border-t border-white/10"></div>
+        .side-image {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 58, 95, 0.92)),
+                        url('https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80');
+            background-size: cover;
+            background-position: center;
+        }
 
-        <!-- Analytics Section -->
-        <p class="px-4 text-[10px] font-semibold text-white/30 uppercase tracking-wider mt-6 mb-2">Analytics</p>
+        .auth-card {
+            background: white;
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        }
 
-        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-all group">
-            <i class="fas fa-chart-line w-5 text-center text-white/40 group-hover:text-blue-400 transition-colors"></i>
-            <span>Reports</span>
-        </a>
+        .text-brand {
+            color: #1e3a5f;
+        }
 
-        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-all group">
-            <i class="fas fa-chart-pie w-5 text-center text-white/40 group-hover:text-blue-400 transition-colors"></i>
-            <span>Analytics</span>
-            <span class="ml-auto bg-green-500/20 text-green-400 px-2.5 py-0.5 rounded-full text-xs font-semibold">New</span>
-        </a>
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
 
-        <div class="my-4 border-t border-white/10"></div>
+        .input-with-icon {
+            padding-left: 44px !important;
+        }
 
-        <!-- System Section -->
-        <p class="px-4 text-[10px] font-semibold text-white/30 uppercase tracking-wider mt-6 mb-2">System</p>
+        .brand-logo-circle {
+            background: linear-gradient(135deg, #1e3a5f, #0f172a);
+            box-shadow: 0 4px 15px rgba(30, 58, 95, 0.3);
+        }
 
-        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-all group">
-            <i class="fas fa-cog w-5 text-center text-white/40 group-hover:text-blue-400 transition-colors"></i>
-            <span>Settings</span>
-        </a>
+        .feature-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(4px);
+        }
+    </style>
+</head>
 
-       
+<body>
 
-    </nav>
-
-    <!-- Sidebar Footer -->
-    <div class="border-t border-white/10 p-4 flex-shrink-0">
-        <div class="bg-white/5 rounded-xl p-3 hover:bg-white/10 transition-colors">
-            <div class="flex items-center gap-3">
-                <!-- User Avatar -->
-                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-blue-500/20 flex-shrink-0">
-                    {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 2)) }}
+    <div class="min-h-screen flex">
+        <!-- LEFT SIDE: Branding -->
+        <div class="hidden lg:flex lg:w-1/2 side-image text-white p-12 flex-col justify-between">
+            <div>
+                <div class="flex items-center gap-3 mb-12">
+                    <div class="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-shield-halved text-white text-2xl"></i>
+                    </div>
+                    <span class="text-3xl font-bold tracking-tight">CredRoot</span>
                 </div>
-                
-                <!-- User Info -->
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm font-semibold truncate">{{ auth()->user()->name ?? 'Admin' }}</p>
-                    <p class="text-[10px] text-white/40 truncate">{{ auth()->user()->email ?? 'admin@credroot.com' }}</p>
+
+                <div class="max-w-md">
+                    <h1 class="text-4xl font-bold mb-6 leading-tight">Secure &amp; Smart<br />Credential Management</h1>
+                    <p class="text-lg text-white/90 mb-8 leading-relaxed">
+                        Manage access, track authentication, and control permissions
+                        with powerful admin tools — all from one dashboard.
+                    </p>
+
+                    <div class="space-y-4">
+                        <div class="feature-card rounded-xl p-4 flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-shield-alt text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white">Bank-grade Security</h4>
+                                <p class="text-sm text-white/80">256-bit encryption &amp; audit logs</p>
+                            </div>
+                        </div>
+                        <div class="feature-card rounded-xl p-4 flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-fingerprint text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white">Biometric Authentication</h4>
+                                <p class="text-sm text-white/80">Multi-factor &amp; identity verification</p>
+                            </div>
+                        </div>
+                        <div class="feature-card rounded-xl p-4 flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-users-cog text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white">Role-based Access</h4>
+                                <p class="text-sm text-white/80">Manage admins, users, and groups</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                
-                <!-- Logout Button -->
-                <form action="{{ route('admin.logout') }}" method="POST" class="m-0">
-                    @csrf
-                    <button type="submit" class="text-white/30 hover:text-white/60 transition-colors p-1 hover:bg-white/10 rounded-lg" title="Logout" onclick="return confirm('Are you sure you want to logout?')">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
-                </form>
+            </div>
+
+            <div class="text-white/70 text-sm">
+                <p>© 2025 CredRoot — all rights reserved.</p>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE: Login Form -->
+        <div class="w-full lg:w-1/2 flex items-center justify-center p-6">
+            <div class="w-full max-w-md">
+
+                <!-- Mobile Logo -->
+                <div class="lg:hidden flex justify-center mb-8">
+                    <div class="flex items-center gap-3">
+                        <div class="brand-gradient w-14 h-14 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg">
+                            <i class="fas fa-shield-halved"></i>
+                        </div>
+                        <span class="text-3xl font-bold text-slate-900">CredRoot</span>
+                    </div>
+                </div>
+
+                <!-- Login Card -->
+                <div class="auth-card p-8 lg:p-10">
+
+                    <!-- Header -->
+                    <div class="text-center mb-10">
+                        <div class="brand-logo-circle w-16 h-16 rounded-2xl flex items-center justify-center text-white text-2xl mx-auto mb-4 shadow-lg">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-900">Welcome Back</h2>
+                        <p class="text-slate-500 text-sm mt-1">Sign in to your admin account</p>
+                    </div>
+
+                    <!-- Error Message -->
+                    @if(session('error'))
+                    <div class="mb-6 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-red-600 text-sm flex items-center gap-3">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>{{ session('error') }}</span>
+                    </div>
+                    @endif
+
+                    <!-- Login Form -->
+                    <form method="POST" action="{{ route('admin.login.submit') }}" class="space-y-6">
+                        @csrf
+
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
+                            <div class="relative">
+                                <i class="fas fa-envelope input-icon"></i>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value="{{ old('email') }}"
+                                    required
+                                    placeholder="admin@credroot.com"
+                                    class="input-field w-full rounded-xl py-3.5 input-with-icon focus:outline-none placeholder:text-slate-400"
+                                />
+                            </div>
+                            @error('email')
+                            <p class="mt-1 text-sm text-red-600 flex items-center gap-1">
+                                <i class="fas fa-exclamation-circle text-xs"></i> {{ $message }}
+                            </p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Password</label>
+                            <div class="relative">
+                                <i class="fas fa-key input-icon"></i>
+                                <input
+                                    type="password"
+                                    name="password"
+                                    required
+                                    placeholder="••••••••"
+                                    class="input-field w-full rounded-xl py-3.5 input-with-icon pr-12 focus:outline-none placeholder:text-slate-400"
+                                />
+                                <button
+                                    type="button"
+                                    onclick="togglePassword()"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                >
+                                    <i id="passwordToggle" class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            @error('password')
+                            <p class="mt-1 text-sm text-red-600 flex items-center gap-1">
+                                <i class="fas fa-exclamation-circle text-xs"></i> {{ $message }}
+                            </p>
+                            @enderror
+                        </div>
+
+                        <div class="flex justify-between items-center">
+                            <label class="flex items-center text-sm text-slate-600 cursor-pointer hover:text-slate-800 transition-colors">
+                                <input type="checkbox" name="remember" class="rounded border-slate-300 text-brand focus:ring-brand/20" />
+                                <span class="ml-2">Remember me</span>
+                            </label>
+                            <a href="#" class="text-sm text-brand hover:underline font-medium">
+                                Forgot password?
+                            </a>
+                        </div>
+
+                        <button type="submit" class="btn-primary w-full py-3.5 rounded-xl font-semibold text-base">
+                            <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                        </button>
+                    </form>
+
+                    <!-- Sign up link -->
+                    <div class="text-center pt-6 mt-6 border-t border-slate-100">
+                        <p class="text-sm text-slate-600">
+                            Don't have an account?
+                            <a href="#" class="text-brand font-semibold hover:underline ml-1 transition-colors">
+                                Contact Administrator
+                            </a>
+                        </p>
+                    </div>
+
+                    <!-- Security Badge -->
+                    <div class="mt-6 text-center text-xs text-slate-400 flex items-center justify-center gap-4">
+                        <span><i class="fas fa-lock mr-1"></i> 256-bit encrypted</span>
+                        <span class="w-px h-4 bg-slate-200"></span>
+                        <span><i class="fas fa-shield-alt mr-1"></i> SSL secured</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-</aside>
+    <script>
+        function togglePassword() {
+            const input = document.querySelector('input[name="password"]');
+            const icon = document.getElementById('passwordToggle');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    </script>
 
-<style>
-    /* Custom scrollbar */
-    aside::-webkit-scrollbar {
-        width: 4px;
-    }
-    aside::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    aside::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 10px;
-    }
-    aside::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.25);
-    }
-
-    /* Active link state - can be added dynamically */
-    .nav-active {
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-        box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
-    }
-    .nav-active i {
-        color: #60a5fa;
-    }
-</style>
+</body>
+</html>
