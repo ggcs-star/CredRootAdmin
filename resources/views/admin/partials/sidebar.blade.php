@@ -38,7 +38,7 @@
             <span class="ml-auto text-white/30 text-xs">248</span>
         </a>
 
-        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-all group">
+        <a href="{{ route('admin.banks.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-all group">
             <i class="fas fa-university w-5 text-center text-white/40 group-hover:text-blue-400 transition-colors"></i>
             <span>Lenders</span>
             <span class="ml-auto text-white/30 text-xs">32</span>
