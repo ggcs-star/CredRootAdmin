@@ -6,33 +6,88 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OtpMail;
+
 
 class AuthController extends Controller
 {
     /**
      * Register User
      */
-    public function register(Request $request)
-    {
-        $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email',
-            'password' => 'required|min:6|confirmed',
-        ]);
+  public function register(Request $request)
+{
+$request->validate([
+'name' => 'required|string|max:255',
+'email' => 'required|email|unique:users',
+'password' => 'required|min:6|confirmed',
+]);
 
-        $user = User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+$otp = rand(100000, 999999);
 
-        $user->assignRole('user');
+Cache::put(
+    'register_'.$request->email,
+    [
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'otp' => $otp,
+    ],
+    now()->addMinutes(10)
+);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'User registered successfully'
-        ], 201);
-    }
+Mail::to($request->email)->send(
+    new OtpMail($otp)
+);
+
+return response()->json([
+    'success' => true,
+    'message' => 'OTP sent successfully'
+]);
+
+}
+public function verifyOtp(Request $request)
+{
+$request->validate([
+'email' => 'required|email',
+'otp' => 'required|digits:6',
+]);
+
+
+$data = Cache::get('register_'.$request->email);
+
+if (!$data) {
+    return response()->json([
+        'success' => false,
+        'message' => 'OTP expired'
+    ], 400);
+}
+
+if ($data['otp'] != $request->otp) {
+    return response()->json([
+        'success' => false,
+        'message' => 'Invalid OTP'
+    ], 400);
+}
+
+$user = User::create([
+    'name' => $data['name'],
+    'email' => $data['email'],
+    'password' => $data['password'],
+]);
+
+$user->assignRole('user');
+
+Cache::forget('register_'.$request->email);
+
+return response()->json([
+    'success' => true,
+    'message' => 'Registration completed successfully'
+]);
+
+
+}
 
     /**
      * Login User

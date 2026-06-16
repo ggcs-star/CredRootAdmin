@@ -6,8 +6,9 @@ use App\Http\Controllers\Api\AuthController;
 Route::prefix('auth')->group(function () {
 
     // Public Routes
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);   
+ Route::post('/login', [AuthController::class, 'login']);
 
     // Protected Routes
     Route::middleware(['auth:api', 'role:user'])->group(function () {
