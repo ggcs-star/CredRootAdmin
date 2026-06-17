@@ -1,7 +1,10 @@
 <?php
 namespace App\Models;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class LoanType extends Model {
-    protected $fillable = ['name', 'description', 'status'];
+    use HasFactory;
+    
+    protected $fillable = ['name', 'slug', 'description', 'icon_path', 'status'];
 }
