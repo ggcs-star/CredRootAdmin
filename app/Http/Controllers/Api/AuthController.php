@@ -16,78 +16,78 @@ class AuthController extends Controller
     /**
      * Register User
      */
-  public function register(Request $request)
-{
-$request->validate([
-'name' => 'required|string|max:255',
-'email' => 'required|email|unique:users',
-'password' => 'required|min:6|confirmed',
-]);
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:6|confirmed',
+        ]);
 
-$otp = rand(100000, 999999);
+        $otp = rand(100000, 999999);
 
-Cache::put(
-    'register_'.$request->email,
-    [
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'otp' => $otp,
-    ],
-    now()->addMinutes(10)
-);
+        Cache::put(
+            'register_' . $request->email,
+            [
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'otp' => $otp,
+            ],
+            now()->addMinutes(10)
+        );
 
-Mail::to($request->email)->send(
-    new OtpMail($otp)
-);
+        Mail::to($request->email)->send(
+            new OtpMail($otp)
+        );
 
-return response()->json([
-    'success' => true,
-    'message' => 'OTP sent successfully'
-]);
+        return response()->json([
+            'success' => true,
+            'message' => 'OTP sent successfully'
+        ]);
 
-}
-public function verifyOtp(Request $request)
-{
-$request->validate([
-'email' => 'required|email',
-'otp' => 'required|digits:6',
-]);
-
-
-$data = Cache::get('register_'.$request->email);
-
-if (!$data) {
-    return response()->json([
-        'success' => false,
-        'message' => 'OTP expired'
-    ], 400);
-}
-
-if ($data['otp'] != $request->otp) {
-    return response()->json([
-        'success' => false,
-        'message' => 'Invalid OTP'
-    ], 400);
-}
-
-$user = User::create([
-    'name' => $data['name'],
-    'email' => $data['email'],
-    'password' => $data['password'],
-]);
-
-$user->assignRole('user');
-
-Cache::forget('register_'.$request->email);
-
-return response()->json([
-    'success' => true,
-    'message' => 'Registration completed successfully'
-]);
+    }
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required|digits:6',
+        ]);
 
 
-}
+        $data = Cache::get('register_' . $request->email);
+
+        if (!$data) {
+            return response()->json([
+                'success' => false,
+                'message' => 'OTP expired'
+            ], 400);
+        }
+
+        if ($data['otp'] != $request->otp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid OTP'
+            ], 400);
+        }
+
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => $data['password'],
+        ]);
+
+        $user->assignRole('user');
+
+        Cache::forget('register_' . $request->email);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Registration completed successfully'
+        ]);
+
+
+    }
 
     /**
      * Login User
@@ -95,7 +95,7 @@ return response()->json([
     public function login(Request $request)
     {
         $request->validate([
-            'email'    => 'required|email',
+            'email' => 'required|email',
             'password' => 'required',
         ]);
 
@@ -161,8 +161,8 @@ return response()->json([
             'token_type' => 'Bearer',
             'expires_in' => auth('api')->factory()->getTTL() * 60,
             'user' => [
-                'id'    => $user->id,
-                'name'  => $user->name,
+                'id' => $user->id,
+                'name' => $user->name,
                 'email' => $user->email,
             ],
             'roles' => $user->getRoleNames(),
