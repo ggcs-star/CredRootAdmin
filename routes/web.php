@@ -4,7 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\BankController;
-
+use App\Http\Controllers\Admin\LoanTypeController;
+use App\Http\Controllers\Admin\LeadStatusController;
+use App\Http\Controllers\Admin\DocumentMasterController;
 
 Route::redirect('/', '/admin/login');
 Route::prefix('admin')->group(function () {
@@ -20,6 +22,9 @@ Route::prefix('admin')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout'])->name('admin.logout');
         
         Route::resource('banks', BankController::class, ['as' => 'admin']);
+        Route::resource('loan-types', LoanTypeController::class);
+Route::resource('lead-statuses', LeadStatusController::class);
+Route::resource('document-masters', DocumentMasterController::class);
 
     });
 });
