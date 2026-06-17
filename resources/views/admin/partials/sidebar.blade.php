@@ -44,6 +44,34 @@
             <span class="ml-auto text-white/30 text-xs">32</span>
         </a>
 
+
+
+        <div class="my-4 border-t border-white/10"></div>
+
+<p class="px-4 text-[10px] font-semibold text-white/30 uppercase tracking-wider mt-6 mb-2">
+    Master Data
+</p>
+
+<a href="{{ route('loan-types.index') }}"
+   class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-all group">
+    <i class="fas fa-money-check-alt w-5 text-center text-white/40 group-hover:text-blue-400 transition-colors"></i>
+    <span>Loan Types</span>
+</a>
+
+<a href="{{ route('lead-statuses.index') }}"
+   class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-all group">
+    <i class="fas fa-stream w-5 text-center text-white/40 group-hover:text-blue-400 transition-colors"></i>
+    <span>Lead Statuses</span>
+</a>
+
+<a href="{{ route('document-masters.index') }}"
+   class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-all group">
+    <i class="fas fa-file-alt w-5 text-center text-white/40 group-hover:text-blue-400 transition-colors"></i>
+    <span>Document Masters</span>
+</a>
+
+
+
         <div class="my-4 border-t border-white/10"></div>
 
         <!-- Analytics Section -->
