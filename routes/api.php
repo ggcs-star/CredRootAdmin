@@ -3,31 +3,31 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserProfileController;
+use App\Http\Controllers\Api\CompanyController;
+use App\Http\Controllers\Api\CompanyBankAccountController;
 
-
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
-    // Public Routes
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);   
- Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login']);
 
-    Route::middleware(['auth:api', 'role:user'])->group(function () {
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
+Route::post('/login', [AuthController::class, 'login']);
 
-        Route::get('/me', [AuthController::class, 'me']);
+Route::middleware(['auth:api', 'role:user'])->group(function () {
 
-        Route::post('/refresh', [AuthController::class, 'refresh']);
+    Route::get('/me', [AuthController::class, 'me']);
+    Route::post('/refresh', [AuthController::class, 'refresh']);
+    Route::post('/logout', [AuthController::class, 'logout']);
 
-        Route::post('/logout', [AuthController::class, 'logout']);
-        Route::post('/user/profile', [UserProfileController::class, 'upsert']);
-        Route::get('/user/profile', [UserProfileController::class, 'show']);
-        Route::get('/dashboard', function () {
-            return response()->json([
-                'success' => true,
-                'message' => 'User Dashboard'
-            ]);
-        });
+    Route::post('/user/profile', [UserProfileController::class, 'upsert']);
+    Route::get('/user/profile', [UserProfileController::class, 'show']);
 
-    });
+    Route::get('/user/company', [CompanyController::class, 'show']);
+    Route::post('/user/company', [CompanyController::class, 'upsert']);
+
+    Route::get('/user/company/banks', [CompanyBankAccountController::class, 'index']);
+    Route::post('/user/company/banks', [CompanyBankAccountController::class, 'store']);
+    Route::delete('/user/company/banks/{id}', [CompanyBankAccountController::class, 'destroy']);
+});
 
 
