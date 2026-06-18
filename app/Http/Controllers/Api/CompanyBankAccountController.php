@@ -32,8 +32,12 @@ class CompanyBankAccountController extends Controller
         ], 200);
     }
 
-    public function store(Request $request)
+   public function store(Request $request)
     {
+        // Auth::user() use kar rahe hain taaki step update kar sakein
+        $user = Auth::user();
+        $user_id = $user->id;
+
         $validatedData = $request->validate([
             'company_id' => 'required|integer',
             'bank_name' => 'required|string|max:100',
@@ -44,25 +48,40 @@ class CompanyBankAccountController extends Controller
             'is_primary' => 'boolean'
         ]);
 
+        // Security Check: Kya ye company is logged-in user ki hai?
         $company = Company::where('id', $validatedData['company_id'])
-                          ->where('user_id', Auth::id())
+                          ->where('user_id', $user_id)
                           ->first();
 
         if (!$company) {
             return response()->json(['status' => 'error', 'message' => 'Company not found or unauthorized.'], 403);
         }
 
+        // Agar is account ko primary set kiya hai, toh baaki sabko false kar do
         if (isset($validatedData['is_primary']) && $validatedData['is_primary']) {
             CompanyBankAccount::where('company_id', $company->id)->update(['is_primary' => false]);
         }
 
-        $bankAccount = CompanyBankAccount::create($validatedData);
+        // --- THE MAGIC UPDATE ---
+        // Agar company_id match hoti hai toh data update hoga, warna naya insert hoga
+        $bankAccount = CompanyBankAccount::updateOrCreate(
+            ['company_id' => $company->id], // Is condition par search karega
+            $validatedData                  
+        );
+
+        
+        if ($user->current_step < 4) {
+            $user->update(['current_step' => 4]);
+        }
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Bank account added successfully.',
-            'data' => $bankAccount
-        ], 201);
+            'message' => 'Bank account saved successfully.', 
+            'data' => [
+                'bank_account' => $bankAccount,
+                'current_step' => $user->current_step
+            ]
+        ], 200); 
     }
 
     public function destroy($id)

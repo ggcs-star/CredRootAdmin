@@ -11,7 +11,7 @@ use App\Http\Controllers\Admin\DocumentMasterController;
 Route::redirect('/', '/admin/login');
 Route::prefix('admin')->group(function () {
 
-    Route::get('/login', [AuthController::class, 'loginForm'])->name('admin.login');
+    Route::get('/login', [AuthController::class, 'loginForm'])->name('login');
 
     Route::post('/login', [AuthController::class, 'login'])->name('admin.login.submit');
 

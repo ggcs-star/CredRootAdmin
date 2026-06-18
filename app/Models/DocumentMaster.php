@@ -13,7 +13,6 @@ class DocumentMaster extends Model {
         'is_mandatory', 'collection_stage', 'status'
     ];
 
-    // JSON column ko Array mein automatically convert karne ke liye 'array' cast use karna zaroori hai
     protected $casts = [
         'is_mandatory' => 'boolean',
         'applicable_entities' => 'array',

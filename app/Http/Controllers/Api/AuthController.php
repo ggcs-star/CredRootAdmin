@@ -13,9 +13,6 @@ use App\Mail\OtpMail;
 
 class AuthController extends Controller
 {
-    /**
-     * Register User
-     */
     public function register(Request $request)
     {
         $request->validate([
@@ -89,9 +86,6 @@ class AuthController extends Controller
 
     }
 
-    /**
-     * Login User
-     */
     public function login(Request $request)
     {
         $request->validate([
@@ -108,12 +102,39 @@ class AuthController extends Controller
             ], 401);
         }
 
-        return $this->respondWithToken($token);
+        $user = auth('api')->user();
+
+        $onboardingData = null;
+
+        if ($user->current_step < 6) {
+            $profile = \App\Models\UserProfile::where('user_id', $user->id)->first();
+            $company = \App\Models\Company::with('members')->where('user_id', $user->id)->first();
+            $bankAccounts = $company ? \App\Models\CompanyBankAccount::where('company_id', $company->id)->get() : [];
+$activeLead = \App\Models\Lead::where('user_id', $user->id)
+                            ->latest()
+                            ->first();
+            $onboardingData = [
+                'profile' => $profile,
+                'company' => $company,
+                'bank_accounts' => $bankAccounts,
+                'active_lead' => $activeLead,
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'access_token' => $token,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'current_step' => $user->current_step,
+            ],
+            'onboarding_data' => $onboardingData
+        ]);
     }
 
-    /**
-     * Current Logged In User
-     */
+
     public function me()
     {
         $user = auth('api')->user();
@@ -125,9 +146,6 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * Refresh JWT Token
-     */
     public function refresh()
     {
         return $this->respondWithToken(
@@ -135,9 +153,7 @@ class AuthController extends Controller
         );
     }
 
-    /**
-     * Logout User
-     */
+
     public function logout()
     {
         auth('api')->logout();
@@ -148,9 +164,7 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * JWT Token Response
-     */
+
     protected function respondWithToken($token)
     {
         $user = auth('api')->user();
