@@ -12,22 +12,34 @@ class DocumentMasterSeeder extends Seeder
         $documents = [
             // --- STAGE 1: Pre-Qualification (Subke liye mandatory) ---
             [
+                'document_code' => 'PAN_CARD',
                 'name' => 'PAN Card',
-                'entity_type' => null, // null means applicable to ALL
+                'description' => 'Upload a clear picture of the front side of your PAN Card.',
+                'applicable_entities' => null, // null means ALL
+                'sides_required' => 1,
+                'allowed_formats' => 'jpg,jpeg,png,pdf',
                 'is_mandatory' => true,
                 'collection_stage' => 'pre_qualification',
                 'status' => 1
             ],
             [
+                'document_code' => 'AADHAAR_CARD',
                 'name' => 'Aadhaar Card',
-                'entity_type' => null,
+                'description' => 'Upload both front and back sides of your Aadhaar Card.',
+                'applicable_entities' => null,
+                'sides_required' => 2, // Frontend ko 2 boxes dikhane hain
+                'allowed_formats' => 'jpg,jpeg,png,pdf',
                 'is_mandatory' => true,
                 'collection_stage' => 'pre_qualification',
                 'status' => 1
             ],
             [
+                'document_code' => 'BANK_STATEMENT_6M',
                 'name' => 'Last 6 Months Bank Statement',
-                'entity_type' => null,
+                'description' => 'Upload PDF format of your current account statement.',
+                'applicable_entities' => null,
+                'sides_required' => 0, // 0 means Multi-page file (usually PDF)
+                'allowed_formats' => 'pdf',
                 'is_mandatory' => true,
                 'collection_stage' => 'pre_qualification',
                 'status' => 1
@@ -35,59 +47,91 @@ class DocumentMasterSeeder extends Seeder
 
             // --- STAGE 2: Final Application (Common) ---
             [
+                'document_code' => 'ITR_2YRS',
                 'name' => 'ITR for last 2 years',
-                'entity_type' => null,
+                'description' => 'Income Tax Returns with computation.',
+                'applicable_entities' => null,
+                'sides_required' => 0,
+                'allowed_formats' => 'pdf',
                 'is_mandatory' => true,
                 'collection_stage' => 'final_application',
                 'status' => 1
             ],
             [
+                'document_code' => 'GST_CERT',
                 'name' => 'GST Registration Certificate',
-                'entity_type' => null,
+                'description' => 'Full GST certificate including annexures.',
+                'applicable_entities' => null,
+                'sides_required' => 0,
+                'allowed_formats' => 'pdf,jpg,png',
                 'is_mandatory' => false,
                 'collection_stage' => 'final_application',
                 'status' => 1
             ],
             [
+                'document_code' => 'UDYAM_CERT',
                 'name' => 'Udyam Registration',
-                'entity_type' => null,
+                'description' => 'MSME/Udyam Certificate.',
+                'applicable_entities' => null,
+                'sides_required' => 1,
+                'allowed_formats' => 'pdf,jpg,png',
                 'is_mandatory' => false,
                 'collection_stage' => 'final_application',
                 'status' => 1
             ],
 
-            // --- STAGE 2: Final Application (Specific to Entity Type) ---
+            // --- STAGE 2: Specific to Entity Type (JSON Arrays) ---
             [
+                'document_code' => 'PARTNERSHIP_DEED',
                 'name' => 'Partnership Deed',
-                'entity_type' => 'Partnership', // Sirf Partnership ko dikhega
+                'description' => 'Registered partnership deed.',
+                'applicable_entities' => ['Partnership'], // Array casted to JSON
+                'sides_required' => 0,
+                'allowed_formats' => 'pdf',
                 'is_mandatory' => true,
                 'collection_stage' => 'final_application',
                 'status' => 1
             ],
             [
+                'document_code' => 'CERT_INCORPORATION',
                 'name' => 'Certificate of Incorporation',
-                'entity_type' => 'Pvt Ltd', // Sirf Pvt Ltd ko dikhega
+                'description' => 'Company registration certificate.',
+                'applicable_entities' => ['Pvt Ltd'],
+                'sides_required' => 1,
+                'allowed_formats' => 'pdf',
                 'is_mandatory' => true,
                 'collection_stage' => 'final_application',
                 'status' => 1
             ],
             [
+                'document_code' => 'MOA_AOA',
                 'name' => 'MOA and AOA',
-                'entity_type' => 'Pvt Ltd',
+                'description' => 'Memorandum and Articles of Association.',
+                'applicable_entities' => ['Pvt Ltd'],
+                'sides_required' => 0,
+                'allowed_formats' => 'pdf',
                 'is_mandatory' => true,
                 'collection_stage' => 'final_application',
                 'status' => 1
             ],
             [
+                'document_code' => 'BOARD_RES',
                 'name' => 'Board Resolution',
-                'entity_type' => 'Pvt Ltd',
+                'description' => 'Resolution authorizing the loan application.',
+                'applicable_entities' => ['Pvt Ltd'],
+                'sides_required' => 0,
+                'allowed_formats' => 'pdf',
                 'is_mandatory' => true,
                 'collection_stage' => 'final_application',
                 'status' => 1
             ],
             [
+                'document_code' => 'LLP_AGREEMENT',
                 'name' => 'LLP Agreement',
-                'entity_type' => 'LLP', // Sirf LLP ko dikhega
+                'description' => 'Incorporation agreement for LLP.',
+                'applicable_entities' => ['LLP'],
+                'sides_required' => 0,
+                'allowed_formats' => 'pdf',
                 'is_mandatory' => true,
                 'collection_stage' => 'final_application',
                 'status' => 1
@@ -96,7 +140,7 @@ class DocumentMasterSeeder extends Seeder
 
         foreach ($documents as $doc) {
             DocumentMaster::firstOrCreate(
-                ['name' => $doc['name'], 'entity_type' => $doc['entity_type']], 
+                ['document_code' => $doc['document_code']], 
                 $doc
             );
         }
