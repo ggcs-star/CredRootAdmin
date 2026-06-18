@@ -10,9 +10,11 @@ use Illuminate\Support\Facades\Auth;
 class UserProfileController extends Controller
 {
 
-    public function upsert(Request $request)
+   public function upsert(Request $request)
     {
-        $user_id = Auth::id();
+        // Auth::id() ki jagah Auth::user() use kar rahe hain taaki step update kar sakein
+        $user = Auth::user();
+        $user_id = $user->id;
 
         $validatedData = $request->validate([
             'dob' => 'nullable|date',
@@ -26,15 +28,25 @@ class UserProfileController extends Controller
             'pincode' => 'nullable|string|max:10',
         ]);
 
+        // Profile Update ya Create karein
         $profile = UserProfile::updateOrCreate(
             ['user_id' => $user_id],
             $validatedData
         );
 
+        // --- NEW STEP LOGIC ---
+        // Agar user pehli baar profile bhar raha hai (step < 2), toh step 2 set karo
+        if ($user->current_step < 2) {
+            $user->update(['current_step' => 2]);
+        }
+
         return response()->json([
             'status' => 'success',
             'message' => 'Profile saved successfully.',
-            'data' => $profile
+            'data' => [
+                'profile' => $profile,
+                'current_step' => $user->current_step // Frontend ko naya step bhej dein taaki wo redirect kar sake
+            ]
         ], 200);
     }
 }

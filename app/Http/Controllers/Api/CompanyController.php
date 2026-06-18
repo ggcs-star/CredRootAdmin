@@ -32,7 +32,8 @@ class CompanyController extends Controller
 
     public function upsert(Request $request)
     {
-        $user_id = Auth::id();
+        $user = Auth::user();
+        $user_id = $user->id;
 
         $validatedData = $request->validate([
             'company_name' => 'required|string|max:255',
@@ -82,6 +83,10 @@ class CompanyController extends Controller
                 CompanyMember::insert($membersData);
             }
 
+            if ($user->current_step < 3) {
+                $user->update(['current_step' => 3]);
+            }
+
             DB::commit();
 
             $company->load('members');
@@ -89,7 +94,10 @@ class CompanyController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Company and members details saved successfully.',
-                'data' => $company
+                'data' => [
+                    'company' => $company,
+                    'current_step' => $user->current_step
+                ]
             ], 200);
 
         } catch (\Exception $e) {
