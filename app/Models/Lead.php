@@ -34,58 +34,50 @@ class Lead extends Model
         'pre_approved_max_amount' => 'decimal:2',
     ];
 
-    /**
-     * Boot function: Nayi lead banate waqt automatically Lead Number generate karne ke liye
-     */
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($model) {
-            // Agar controller se lead_number nahi aaya hai toh automatically assign karo
             if (empty($model->lead_number)) {
                 $model->lead_number = 'LD-' . strtoupper(uniqid());
             }
         });
     }
 
-    // =======================
-    // Relationships
-    // =======================
-
-    // Lead belongs to a User (Customer)
+   
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Lead belongs to a Company (Business)
     public function company()
     {
         return $this->belongsTo(Company::class);
     }
 
-    // Lead has a specific Status (e.g., "Pending", "Approved")
     public function status()
     {
         return $this->belongsTo(LeadStatus::class, 'status_id');
     }
 
-    // Lead is assigned to an Admin/Agent (User)
     public function assignedAgent()
     {
         return $this->belongsTo(User::class, 'assigned_to');
     }
 
-    // Lead ke multiple documents ho sakte hain
     public function documents()
     {
         return $this->hasMany(Document::class);
     }
 
-    // Lead ki multiple banks mein loan applications ho sakti hain
     public function loanApplications()
     {
         return $this->hasMany(LoanApplication::class);
     }
+    public function loanType()
+    {
+        return $this->belongsTo(LoanType::class, 'loan_type_id');
+    }
+
 }

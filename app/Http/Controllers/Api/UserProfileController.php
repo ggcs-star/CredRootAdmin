@@ -9,10 +9,36 @@ use Illuminate\Support\Facades\Auth;
 
 class UserProfileController extends Controller
 {
-
-   public function upsert(Request $request)
+   public function show(Request $request)
     {
-        // Auth::id() ki jagah Auth::user() use kar rahe hain taaki step update kar sakein
+        $user = Auth::user();
+
+        $profile = UserProfile::where('user_id', $user->id)->first();
+
+        if (!$profile) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Profile data not found. User needs to create a profile.',
+                'data' => [
+                    'user' => $user,
+                    'profile' => null,
+                    'current_step' => $user->current_step
+                ]
+            ], 200);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Profile fetched successfully.',
+            'data' => [
+                'user' => $user,
+                'profile' => $profile,
+                'current_step' => $user->current_step
+            ]
+        ], 200);
+    }
+    public function upsert(Request $request)
+    {
         $user = Auth::user();
         $user_id = $user->id;
 
@@ -28,14 +54,11 @@ class UserProfileController extends Controller
             'pincode' => 'nullable|string|max:10',
         ]);
 
-        // Profile Update ya Create karein
         $profile = UserProfile::updateOrCreate(
             ['user_id' => $user_id],
             $validatedData
         );
 
-        // --- NEW STEP LOGIC ---
-        // Agar user pehli baar profile bhar raha hai (step < 2), toh step 2 set karo
         if ($user->current_step < 2) {
             $user->update(['current_step' => 2]);
         }
@@ -45,7 +68,7 @@ class UserProfileController extends Controller
             'message' => 'Profile saved successfully.',
             'data' => [
                 'profile' => $profile,
-                'current_step' => $user->current_step // Frontend ko naya step bhej dein taaki wo redirect kar sake
+                'current_step' => $user->current_step
             ]
         ], 200);
     }
