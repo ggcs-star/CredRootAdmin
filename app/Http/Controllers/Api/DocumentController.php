@@ -5,9 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Document;
 use App\Models\Lead;
+use App\Models\DocumentMaster;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\DocumentMaster;
+
 class DocumentController extends Controller
 {
     public function upload(Request $request)
@@ -15,8 +16,8 @@ class DocumentController extends Controller
         $request->validate([
             'lead_id' => 'required|exists:leads,id',
             'document_master_id' => 'required|exists:document_masters,id',
-            'file' => 'required|file|mimes:jpeg,png,jpg,pdf',
-            'document_side' => 'required|string|in:front,back,single', // Frontend batayega konsi side hai
+            'file' => 'required|file|mimes:jpeg,png,jpg,pdf|max:51200', // max size add kar diya (50MB)
+            'document_side' => 'required|string|in:front,back,single',
         ]);
 
         $user_id = Auth::id();
@@ -29,17 +30,17 @@ class DocumentController extends Controller
 
         $file = $request->file('file');
         
-        // File name mein side ka naam bhi add kar dete hain taaki folder mein samajh aaye
-        $fileName = time() . '_' . $request->document_side . '_' . $file->getClientOriginalName();
+        // File name mein side ka naam add kar rahe hain
+        $fileName = time() . '_' . $request->document_side . '_' . preg_replace('/[^A-Za-z0-9.\-]/', '', $file->getClientOriginalName()); // Special characters remove kar diye
         $filePath = $file->storeAs('user_documents/' . $user_id . '/lead_' . $lead->id, $fileName, 'public');
 
-        // UpdateOrCreate mein ab document_side bhi check hoga!
+        // UpdateOrCreate logic
         $document = Document::updateOrCreate(
             [
                 'user_id' => $user_id,
                 'lead_id' => $lead->id,
                 'document_master_id' => $request->document_master_id,
-                'document_side' => $request->document_side, // Front overwrite nahi karega Back ko
+                'document_side' => $request->document_side,
             ],
             [
                 'document_type' => $file->getMimeType(),
@@ -59,6 +60,7 @@ class DocumentController extends Controller
             ]
         ], 201);
     }
+
     public function finalizeUploads(Request $request)
     {
         $request->validate([
@@ -67,7 +69,7 @@ class DocumentController extends Controller
 
         $user = Auth::user();
         
-        // Lead ke sath Company bhi load kar rahe hain taaki entity_type mil sake
+        // Lead aur Company details load karein
         $lead = Lead::with('company')->where('id', $request->lead_id)->where('user_id', $user->id)->first();
 
         if (!$lead) {
@@ -78,10 +80,10 @@ class DocumentController extends Controller
         $entityType = $lead->company->entity_type ?? null;
         $loanTypeId = $lead->loan_type_id;
 
-        // 1. Sirf Mandatory Required Documents nikaalein
+        // 1. Mandatory Required Documents fetch karein
         $mandatoryDocs = DocumentMaster::where('status', 1)
             ->where('collection_stage', 'final_application')
-            ->where('is_mandatory', true) // Sirf mandatory check karna hai
+            ->where('is_mandatory', true)
             ->where(function ($query) use ($entityType) {
                 $query->whereNull('applicable_entities');
                 if ($entityType) {
@@ -96,20 +98,22 @@ class DocumentController extends Controller
                 }
             })->get();
 
-        // 2. User ne is lead mein ab tak kya upload kiya hai
+        // 2. Uploaded documents nikaalein
         $uploadedDocs = Document::where('lead_id', $lead->id)
             ->get()
             ->groupBy('document_master_id');
 
         $missingDocuments = [];
 
-        // 3. Match karein ki required docs upload hue hain ya nahi
+        // 3. Validation Logic Match Karein
         foreach ($mandatoryDocs as $doc) {
             $uploadsForThisDoc = $uploadedDocs->get($doc->id, collect());
             $uploadedSides = $uploadsForThisDoc->pluck('document_side')->toArray();
 
             $isComplete = false;
-            if ($doc->sides_required == 0 && in_array('single', $uploadedSides)) {
+            
+            // --- MAIN FIX: 0 sides (Single) ke liye 'front' ko bhi valid maanega ---
+            if ($doc->sides_required == 0 && (in_array('single', $uploadedSides) || in_array('front', $uploadedSides))) {
                 $isComplete = true;
             } elseif ($doc->sides_required == 1 && in_array('front', $uploadedSides)) {
                 $isComplete = true;
@@ -117,28 +121,27 @@ class DocumentController extends Controller
                 $isComplete = true;
             }
 
-            // Agar koi document incomplete hai, toh array mein uska naam daal do
             if (!$isComplete) {
                 $missingDocuments[] = $doc->name;
             }
         }
 
-        // 4. Agar missing documents array khali nahi hai, toh Error Return karo
+        // 4. Missing document response
         if (!empty($missingDocuments)) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Cannot submit application. Mandatory documents are missing.',
-                'missing_documents' => $missingDocuments // Frontend ko batao kya missing hai
-            ], 422); // 422 Unprocessable Entity
+                'missing_documents' => $missingDocuments
+            ], 422); 
         }
         // --- STRICT BACKEND VALIDATION END ---
 
-        // --- THE MAGIC ---
+        // --- STEP UPDATE MAGIC ---
         if ($user->current_step < 6) {
             $user->update(['current_step' => 6]);
         }
 
-        // Lead ka status bhi 'NEW' se change karke 'DOCS_UPLOADED' kar dete hain
+        // TODO: Lead status update logic (Uncomment when LeadStatus is fully setup)
         // $docsUploadedStatusId = LeadStatus::where('internal_code', 'DOCS_UPLOADED')->value('id');
         // if ($docsUploadedStatusId) {
         //     $lead->update(['status_id' => $docsUploadedStatusId]);
