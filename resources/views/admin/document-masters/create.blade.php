@@ -50,7 +50,7 @@
             
             <input type="checkbox" name="applicable_entities[]" value="{{ $entity }}" 
                    class="w-5 h-5 text-amber-500 rounded border-slate-300 focus:ring-amber-500"
-                   {{ in_array($entity, $selectedEntities) ? 'checked' : '' }}>
+                   {{ in_array($entity, $oldEntities) ? 'checked' : '' }}>
             
             <span class="ml-3 text-sm font-medium text-slate-700">{{ $entity }}</span>
             
