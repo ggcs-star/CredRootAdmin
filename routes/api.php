@@ -27,7 +27,7 @@ Route::middleware(['auth:api', 'role:user'])->group(function () {
     Route::get('/user/company', [CompanyController::class, 'show']);
     Route::post('/user/company', [CompanyController::class, 'upsert']);
 
-    Route::get('/user/company/banks', [CompanyBankAccountController::class, 'index']);
+    Route::get('/user/company/banks', [CompanyBankAccountController::class, 'show']);
     Route::post('/user/company/banks', [CompanyBankAccountController::class, 'store']);
     Route::delete('/user/company/banks/{id}', [CompanyBankAccountController::class, 'destroy']);
 
@@ -36,6 +36,7 @@ Route::middleware(['auth:api', 'role:user'])->group(function () {
     Route::get('/master/documents', [MasterDataController::class, 'getRequiredDocuments']);
     Route::get('/master/banks', [MasterDataController::class, 'getActiveBanks']);
 
+    Route::get('/lead/show', [LeadController::class, 'show']);
     Route::post('/user/loan/apply', [LeadController::class, 'applyForLoan']);
     Route::post('/documents/upload', [DocumentController::class, 'upload']);
     Route::post('/documents/finalize', [DocumentController::class, 'finalizeUploads']);
