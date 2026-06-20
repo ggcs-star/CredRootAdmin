@@ -5,133 +5,629 @@
 @section('page-subtitle', 'Update document requirements')
 
 @section('content')
-<div class="max-w-5xl mx-auto">
-<div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
-    <div class="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-5">
-        <h2 class="text-2xl font-bold text-white">Edit Document Master</h2>
-        <p class="text-orange-100 text-sm mt-1">Modify document rules and UI validations</p>
-    </div>
 
-    <form action="{{ route('document-masters.update', $documentMaster->id) }}" method="POST" enctype="multipart/form-data" class="p-6">
-        @csrf
-        @method('PUT')
+<div class="max-w-6xl mx-auto px-3 sm:px-4">
 
-        @php
-            $selectedEntities = old('applicable_entities', $documentMaster->applicable_entities ?? []);
-            $selectedLoans = old('applicable_loan_types', $documentMaster->applicable_loan_types ?? []);
-        @endphp
+    {{-- Breadcrumb --}}
+    <nav class="flex items-center gap-1.5 text-xs sm:text-sm text-slate-500 overflow-x-auto whitespace-nowrap pb-4">
+        <a href="{{ route('admin.dashboard.index') }}" class="hover:text-amber-600 transition flex-shrink-0">
+            <i class="fas fa-home"></i>
+        </a>
+        <span class="text-slate-300 flex-shrink-0">/</span>
+        <a href="{{ route('document-masters.index') }}" class="hover:text-amber-600 transition flex-shrink-0">Document Masters</a>
+        <span class="text-slate-300 flex-shrink-0">/</span>
+        <span class="text-slate-700 font-medium truncate">Edit: {{ $documentMaster->name }}</span>
+    </nav>
 
-        <h3 class="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">1. Basic Information</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Document Code *</label>
-                <input type="text" name="document_code" value="{{ old('document_code', $documentMaster->document_code) }}" 
-                       class="w-full px-4 py-3 rounded-xl border border-slate-300 uppercase">
-                @error('document_code')<p class="text-red-500 text-sm mt-1">{{ $message }}</p>@enderror
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Document Name *</label>
-                <input type="text" name="name" value="{{ old('name', $documentMaster->name) }}" 
-                       class="w-full px-4 py-3 rounded-xl border border-slate-300">
-                @error('name')<p class="text-red-500 text-sm mt-1">{{ $message }}</p>@enderror
-            </div>
-            <div class="md:col-span-2">
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Description</label>
-                <textarea name="description" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-300">{{ old('description', $documentMaster->description) }}</textarea>
+    <div class="bg-white rounded-2xl shadow-lg shadow-amber-500/5 border border-slate-200 overflow-hidden">
+
+        {{-- Header --}}
+        <div class="px-5 sm:px-8 py-5 sm:py-6 border-b border-slate-200 bg-gradient-to-r from-amber-50 via-orange-50/50 to-amber-50">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-3">
+                        <span class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
+                            <i class="fas fa-edit text-base sm:text-lg"></i>
+                        </span>
+                        <span>Edit Document Master</span>
+                    </h2>
+                    <p class="text-sm text-slate-500 mt-1 ml-0 sm:ml-14">
+                        <i class="fas fa-info-circle text-amber-400 mr-1"></i>
+                        Modify document rules and UI validations
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                    <span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-lg flex items-center gap-1.5">
+                        <i class="fas fa-edit text-amber-500"></i>
+                        <span>Editing Mode</span>
+                    </span>
+                    <span class="bg-red-100 text-red-600 px-2.5 py-1 rounded-lg flex items-center gap-1.5">
+                        <i class="fas fa-asterisk text-[8px]"></i> 
+                        <span class="hidden xs:inline">Required fields</span>
+                        <span class="xs:hidden">Required</span>
+                    </span>
+                </div>
             </div>
         </div>
 
-        <h3 class="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">2. Application Rules</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            
-            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                <label class="block text-sm font-bold text-slate-800 mb-3">Applicable Entities</label>
-                <p class="text-xs text-slate-500 mb-4">Leave all unchecked if it applies to ALL entities.</p>
-                
-           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-    @foreach($entityTypes as $entity)
-        <label class="flex items-center p-3 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-amber-50 hover:border-amber-200 transition">
-            
-            <input type="checkbox" name="applicable_entities[]" value="{{ $entity }}" 
-                   class="w-5 h-5 text-amber-500 rounded border-slate-300 focus:ring-amber-500"
-                   {{ in_array($entity, $selectedEntities) ? 'checked' : '' }}>
-            
-            <span class="ml-3 text-sm font-medium text-slate-700">{{ $entity }}</span>
-            
-        </label>
-    @endforeach
-</div>
-            </div>
+        <form action="{{ route('document-masters.update', $documentMaster->id) }}" 
+              method="POST" 
+              enctype="multipart/form-data" 
+              class="p-5 sm:p-8">
 
-            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                <label class="block text-sm font-bold text-slate-800 mb-3">Applicable Loan Types</label>
-                <p class="text-xs text-slate-500 mb-4">Leave all unchecked if it applies to ALL loans.</p>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    @foreach($loanTypes as $loan)
-                        <label class="flex items-center p-3 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-amber-50 hover:border-amber-200 transition">
-                            <input type="checkbox" name="applicable_loan_types[]" value="{{ $loan->id }}" 
-                                   class="w-5 h-5 text-amber-500 rounded border-slate-300 focus:ring-amber-500"
-                                   {{ in_array($loan->id, $selectedLoans) ? 'checked' : '' }}>
-                            <span class="ml-3 text-sm font-medium text-slate-700 line-clamp-1" title="{{ $loan->name }}">{{ $loan->name }}</span>
+            @csrf
+            @method('PUT')
+
+            @php
+                $selectedEntities = old('applicable_entities', $documentMaster->applicable_entities ?? []);
+                $selectedLoans = old('applicable_loan_types', $documentMaster->applicable_loan_types ?? []);
+            @endphp
+
+            {{-- Section 1: Basic Information --}}
+            <div class="mb-8">
+                <div class="flex items-center gap-2.5 mb-4">
+                    <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-amber-500/20">
+                        1
+                    </span>
+                    <h3 class="text-lg font-bold text-slate-800">Basic Information</h3>
+                    <span class="text-xs text-slate-400 ml-2">Document identification</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+                    {{-- Document Code --}}
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                            Document Code <span class="text-red-500">*</span>
                         </label>
-                    @endforeach
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <i class="fas fa-code text-slate-400 text-sm"></i>
+                            </div>
+                            <input type="text" 
+                                   name="document_code" 
+                                   value="{{ old('document_code', $documentMaster->document_code) }}" 
+                                   placeholder="e.g. PAN_CARD"
+                                   class="w-full border border-slate-300 rounded-xl pl-10 pr-4 py-3 text-sm uppercase focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all @error('document_code') border-red-500 ring-2 ring-red-500/20 @enderror">
+                        </div>
+                        @error('document_code')
+                            <p class="text-red-500 text-sm mt-1.5 flex items-center gap-1.5">
+                                <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+
+                    {{-- Document Name --}}
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                            Document Name <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <i class="fas fa-file text-slate-400 text-sm"></i>
+                            </div>
+                            <input type="text" 
+                                   name="name" 
+                                   value="{{ old('name', $documentMaster->name) }}" 
+                                   placeholder="e.g. PAN Card"
+                                   class="w-full border border-slate-300 rounded-xl pl-10 pr-4 py-3 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all @error('name') border-red-500 ring-2 ring-red-500/20 @enderror">
+                        </div>
+                        @error('name')
+                            <p class="text-red-500 text-sm mt-1.5 flex items-center gap-1.5">
+                                <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+
+                    {{-- Description --}}
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                            <i class="fas fa-align-left text-amber-500 mr-1.5"></i> Description (Instructions for user)
+                        </label>
+                        <div class="relative">
+                            <textarea name="description" 
+                                      rows="3" 
+                                      placeholder="e.g. Upload a clear front picture of your PAN card. Ensure all details are visible."
+                                      class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all @error('description') border-red-500 ring-2 ring-red-500/20 @enderror">{{ old('description', $documentMaster->description) }}</textarea>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1.5">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Instructions that will be shown to users when uploading this document
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Collection Stage *</label>
-                <select name="collection_stage" class="w-full px-4 py-3 rounded-xl border border-slate-300">
-                    <option value="pre_qualification" {{ $documentMaster->collection_stage == 'pre_qualification' ? 'selected' : '' }}>Pre Qualification</option>
-                    <option value="final_application" {{ $documentMaster->collection_stage == 'final_application' ? 'selected' : '' }}>Final Application</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Mandatory / Optional *</label>
-                <select name="is_mandatory" class="w-full px-4 py-3 rounded-xl border border-slate-300">
-                    <option value="1" {{ $documentMaster->is_mandatory ? 'selected' : '' }}>Mandatory</option>
-                    <option value="0" {{ !$documentMaster->is_mandatory ? 'selected' : '' }}>Optional</option>
-                </select>
-            </div>
-        </div>
+            {{-- Section 2: Application Rules --}}
+            <div class="mb-8">
+                <div class="flex items-center gap-2.5 mb-4">
+                    <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-amber-500/20">
+                        2
+                    </span>
+                    <h3 class="text-lg font-bold text-slate-800">Application Rules</h3>
+                    <span class="text-xs text-slate-400 ml-2">Where this document applies</span>
+                </div>
 
-        <h3 class="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">3. UI & Validation Controls</h3>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Sides Required *</label>
-                <input type="number" name="sides_required" value="{{ old('sides_required', $documentMaster->sides_required) }}" class="w-full px-4 py-3 rounded-xl border border-slate-300">
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Allowed Formats *</label>
-                <input type="text" name="allowed_formats" value="{{ old('allowed_formats', $documentMaster->allowed_formats) }}" class="w-full px-4 py-3 rounded-xl border border-slate-300">
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Max Size (KB) *</label>
-                <input type="number" name="max_size_kb" value="{{ old('max_size_kb', $documentMaster->max_size_kb) }}" class="w-full px-4 py-3 rounded-xl border border-slate-300">
-            </div>
-            <div class="md:col-span-2">
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Sample Image</label>
-                @if($documentMaster->sample_image_url)
-                    <div class="mb-3">
-                        <img src="{{ asset('storage/' . $documentMaster->sample_image_url) }}" alt="Sample" class="h-20 object-contain rounded border border-slate-200">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+                    {{-- Applicable Entities --}}
+                    <div class="bg-slate-50/80 rounded-xl p-4 border border-slate-200">
+                        <label class="block text-sm font-bold text-slate-800 mb-2">
+                            <i class="fas fa-users text-amber-500 mr-1.5"></i> Applicable Entities
+                        </label>
+                        <p class="text-xs text-slate-500 mb-3">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Leave all unchecked if it applies to ALL entities
+                        </p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            @foreach($entityTypes as $entity)
+                                <label class="flex items-center p-2.5 bg-white border border-slate-200 rounded-lg cursor-pointer hover:border-amber-300 hover:bg-amber-50/50 transition-all group">
+                                    <input type="checkbox" 
+                                           name="applicable_entities[]" 
+                                           value="{{ $entity }}" 
+                                           class="w-4 h-4 text-amber-600 rounded border-slate-300 focus:ring-amber-500 focus:ring-2 transition"
+                                           {{ in_array($entity, $selectedEntities) ? 'checked' : '' }}>
+                                    <span class="ml-2.5 text-sm font-medium text-slate-700 group-hover:text-amber-700 transition">{{ $entity }}</span>
+                                </label>
+                            @endforeach
+                        </div>
                     </div>
-                @endif
-                <input type="file" name="sample_image" accept="image/jpeg,image/png" class="w-full px-4 py-3 rounded-xl border border-slate-300">
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Status *</label>
-                <select name="status" class="w-full px-4 py-3 rounded-xl border border-slate-300">
-                    <option value="1" {{ $documentMaster->status == 1 ? 'selected' : '' }}>Active</option>
-                    <option value="0" {{ $documentMaster->status == 0 ? 'selected' : '' }}>Inactive</option>
-                </select>
-            </div>
-        </div>
 
-        <div class="flex items-center gap-3 mt-8 pt-6 border-t border-slate-200">
-            <button type="submit" class="px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl">Update Document Rule</button>
-            <a href="{{ route('document-masters.index') }}" class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl">Cancel</a>
+                    {{-- Applicable Loan Types --}}
+                    <div class="bg-slate-50/80 rounded-xl p-4 border border-slate-200">
+                        <label class="block text-sm font-bold text-slate-800 mb-2">
+                            <i class="fas fa-handshake text-orange-500 mr-1.5"></i> Applicable Loan Types
+                        </label>
+                        <p class="text-xs text-slate-500 mb-3">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Leave all unchecked if it applies to ALL loans
+                        </p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+                            @foreach($loanTypes as $loan)
+                                <label class="flex items-center p-2.5 bg-white border border-slate-200 rounded-lg cursor-pointer hover:border-orange-300 hover:bg-orange-50/50 transition-all group">
+                                    <input type="checkbox" 
+                                           name="applicable_loan_types[]" 
+                                           value="{{ $loan->id }}" 
+                                           class="w-4 h-4 text-orange-600 rounded border-slate-300 focus:ring-orange-500 focus:ring-2 transition"
+                                           {{ in_array($loan->id, $selectedLoans) ? 'checked' : '' }}>
+                                    <span class="ml-2.5 text-sm font-medium text-slate-700 group-hover:text-orange-700 transition truncate" title="{{ $loan->name }}">{{ $loan->name }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    {{-- Collection Stage --}}
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                            <i class="fas fa-clock text-purple-500 mr-1.5"></i> Collection Stage <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <i class="fas fa-layer-group text-slate-400 text-sm"></i>
+                            </div>
+                            <select name="collection_stage" 
+                                    class="w-full border border-slate-300 rounded-xl pl-10 pr-4 py-3 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all appearance-none bg-white">
+                                <option value="pre_qualification" {{ old('collection_stage', $documentMaster->collection_stage) == 'pre_qualification' ? 'selected' : '' }}>
+                                    🔍 Pre Qualification
+                                </option>
+                                <option value="final_application" {{ old('collection_stage', $documentMaster->collection_stage) == 'final_application' ? 'selected' : '' }}>
+                                    📋 Final Application
+                                </option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
+                                <i class="fas fa-chevron-down text-slate-400 text-sm"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1.5">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            When should this document be collected from the user?
+                        </p>
+                    </div>
+
+                    {{-- Mandatory / Optional --}}
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                            <i class="fas fa-asterisk text-red-500 mr-1.5"></i> Requirement Type <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <i class="fas fa-check-circle text-slate-400 text-sm"></i>
+                            </div>
+                            <select name="is_mandatory" 
+                                    class="w-full border border-slate-300 rounded-xl pl-10 pr-4 py-3 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all appearance-none bg-white">
+                                <option value="1" {{ old('is_mandatory', $documentMaster->is_mandatory) == 1 ? 'selected' : '' }}>
+                                    ⚠️ Mandatory
+                                </option>
+                                <option value="0" {{ old('is_mandatory', $documentMaster->is_mandatory) == 0 ? 'selected' : '' }}>
+                                    ✅ Optional
+                                </option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
+                                <i class="fas fa-chevron-down text-slate-400 text-sm"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1.5">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Is this document required for application completion?
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Section 3: UI & Validation Controls --}}
+            <div class="mb-8">
+                <div class="flex items-center gap-2.5 mb-4">
+                    <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-amber-500/20">
+                        3
+                    </span>
+                    <h3 class="text-lg font-bold text-slate-800">UI &amp; Validation Controls</h3>
+                    <span class="text-xs text-slate-400 ml-2">Document validation rules</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
+                    {{-- Sides Required --}}
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                            <i class="fas fa-copy text-purple-500 mr-1.5"></i> Sides Required <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <i class="fas fa-layer-group text-slate-400 text-sm"></i>
+                            </div>
+                            <input type="number" 
+                                   name="sides_required" 
+                                   value="{{ old('sides_required', $documentMaster->sides_required) }}" 
+                                   min="0" 
+                                   class="w-full border border-slate-300 rounded-xl pl-10 pr-4 py-3 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all @error('sides_required') border-red-500 ring-2 ring-red-500/20 @enderror">
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1.5">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            1 = Front, 2 = Front+Back, 0 = PDF File
+                        </p>
+                        @error('sides_required')
+                            <p class="text-red-500 text-sm mt-1.5 flex items-center gap-1.5">
+                                <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+
+                    {{-- Allowed Formats --}}
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                            <i class="fas fa-file-code text-blue-500 mr-1.5"></i> Allowed Formats <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <i class="fas fa-tag text-slate-400 text-sm"></i>
+                            </div>
+                            <input type="text" 
+                                   name="allowed_formats" 
+                                   value="{{ old('allowed_formats', $documentMaster->allowed_formats) }}" 
+                                   class="w-full border border-slate-300 rounded-xl pl-10 pr-4 py-3 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all @error('allowed_formats') border-red-500 ring-2 ring-red-500/20 @enderror">
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1.5">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Comma-separated formats (e.g., jpg,jpeg,png,pdf)
+                        </p>
+                        @error('allowed_formats')
+                            <p class="text-red-500 text-sm mt-1.5 flex items-center gap-1.5">
+                                <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+
+                    {{-- Max Size --}}
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                            <i class="fas fa-weight-hanging text-green-500 mr-1.5"></i> Max Size (KB) <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <i class="fas fa-database text-slate-400 text-sm"></i>
+                            </div>
+                            <input type="number" 
+                                   name="max_size_kb" 
+                                   value="{{ old('max_size_kb', $documentMaster->max_size_kb) }}" 
+                                   class="w-full border border-slate-300 rounded-xl pl-10 pr-4 py-3 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all @error('max_size_kb') border-red-500 ring-2 ring-red-500/20 @enderror">
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1.5">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Maximum file size in KB (e.g., 5120 = 5MB)
+                        </p>
+                        @error('max_size_kb')
+                            <p class="text-red-500 text-sm mt-1.5 flex items-center gap-1.5">
+                                <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+
+                    {{-- Sample Image --}}
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                            <i class="fas fa-image text-purple-500 mr-1.5"></i> Sample Image
+                        </label>
+                        
+                        {{-- Current Sample Image --}}
+                        @if($documentMaster->sample_image_url)
+                            <div class="mb-3 flex items-center gap-4 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                                <div class="w-20 h-20 bg-white rounded-lg flex items-center justify-center shadow-sm ring-1 ring-slate-200 overflow-hidden">
+                                    <img src="{{ asset('storage/' . $documentMaster->sample_image_url) }}" 
+                                         alt="Current Sample" 
+                                         class="w-full h-full object-contain">
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-slate-700">Current Sample Image</p>
+                                    <p class="text-xs text-slate-400">Upload a new image to replace this one</p>
+                                </div>
+                            </div>
+                        @endif
+
+                        <div class="relative border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:border-amber-400 transition-all group @error('sample_image') border-red-500 @enderror">
+                            <input type="file" 
+                                   name="sample_image" 
+                                   id="sample_image"
+                                   accept="image/jpeg,image/png"
+                                   class="absolute inset-0 opacity-0 cursor-pointer z-10"
+                                   onchange="previewSample(event)">
+                            <div class="flex flex-col items-center">
+                                <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center group-hover:bg-amber-50 transition-all">
+                                    <i class="fas fa-cloud-upload-alt text-xl text-slate-400 group-hover:text-amber-500 transition-all"></i>
+                                </div>
+                                <p class="mt-1.5 text-sm font-medium text-slate-700">Click to upload new sample image</p>
+                                <p class="text-xs text-slate-400">JPG, PNG (Max 2MB)</p>
+                                <div id="samplePreview" class="mt-2 hidden">
+                                    <img id="samplePreviewImg" src="#" alt="Sample Preview" class="h-16 w-auto object-contain rounded-lg shadow-md">
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1.5">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Used to guide users on how the document should look
+                        </p>
+                        @error('sample_image')
+                            <p class="text-red-500 text-sm mt-1.5 flex items-center gap-1.5">
+                                <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+
+                    {{-- Status --}}
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                            <i class="fas fa-toggle-on text-amber-500 mr-1.5"></i> Status <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <i class="fas fa-circle text-slate-400 text-[10px]"></i>
+                            </div>
+                            <select name="status" 
+                                    class="w-full border border-slate-300 rounded-xl pl-10 pr-4 py-3 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all appearance-none bg-white">
+                                <option value="1" {{ old('status', $documentMaster->status) == 1 ? 'selected' : '' }}>🟢 Active</option>
+                                <option value="0" {{ old('status', $documentMaster->status) == 0 ? 'selected' : '' }}>🔴 Inactive</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
+                                <i class="fas fa-chevron-down text-slate-400 text-sm"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1.5">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Active documents will be shown to users
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Metadata --}}
+            <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-8">
+                <div class="flex flex-wrap items-center gap-4 text-sm text-slate-600">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-calendar-plus text-amber-400"></i>
+                        <span>Created: <strong>{{ $documentMaster->created_at->format('d M Y, h:i A') }}</strong></span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-clock text-green-400"></i>
+                        <span>Last Updated: <strong>{{ $documentMaster->updated_at->diffForHumans() }}</strong></span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-hashtag text-purple-400"></i>
+                        <span>ID: <strong>#{{ $documentMaster->id }}</strong></span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-code text-blue-400"></i>
+                        <span>Code: <strong class="font-mono">{{ $documentMaster->document_code }}</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Form Actions --}}
+            <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 mt-8 pt-6 border-t border-slate-200">
+                <div class="text-xs text-slate-400 text-center sm:text-left">
+                    <i class="fas fa-shield-alt text-amber-400 mr-1.5"></i> 
+                    All information is secure and encrypted
+                </div>
+                <div class="flex flex-wrap gap-2.5 justify-center sm:justify-end">
+                    <a href="{{ route('document-masters.index') }}" 
+                       class="flex-1 sm:flex-none px-5 py-2.5 border border-slate-300 rounded-xl text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-all font-medium text-sm text-center">
+                        <i class="fas fa-arrow-left mr-1.5"></i> Cancel
+                    </a>
+                    <button type="reset" 
+                            class="flex-1 sm:flex-none px-5 py-2.5 border border-slate-300 rounded-xl text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-all font-medium text-sm text-center">
+                        <i class="fas fa-undo mr-1.5"></i> Reset
+                    </button>
+                    <button type="submit" 
+                            class="flex-1 sm:flex-none px-7 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-xl font-medium transition-all hover:shadow-lg hover:shadow-amber-500/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 flex items-center justify-center gap-2 text-sm">
+                        <i class="fas fa-save"></i>
+                        <span>Update Document Rule</span>
+                    </button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    {{-- Quick Tips --}}
+    <div class="mt-5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4 flex flex-col sm:flex-row items-start gap-3">
+        <div class="w-9 h-9 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-lightbulb text-amber-600"></i>
         </div>
-    </form>
+        <div>
+            <p class="text-sm font-semibold text-amber-800">💡 Quick Tips</p>
+            <ul class="text-sm text-amber-700 space-y-0.5 mt-1">
+                <li class="flex items-start gap-2">
+                    <span class="text-amber-400 mt-0.5">•</span>
+                    <span><strong>Document Code</strong> should be unique and descriptive (e.g., PAN_CARD)</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-amber-400 mt-0.5">•</span>
+                    <span><strong>Applicable Entities/Loans</strong> control where the document appears</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-amber-400 mt-0.5">•</span>
+                    <span><strong>Collection Stage</strong> determines when the document is requested</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-amber-400 mt-0.5">•</span>
+                    <span><strong>Sample Image</strong> helps users understand the required format</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
 </div>
-</div>
+
+<script>
+    // Sample image preview
+    function previewSample(event) {
+        const input = event.target;
+        const previewDiv = document.getElementById('samplePreview');
+        const previewImg = document.getElementById('samplePreviewImg');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                previewDiv.classList.remove('hidden');
+                previewDiv.classList.add('animate-fadeIn');
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Reset confirmation
+    document.querySelector('button[type="reset"]')?.addEventListener('click', function(e) {
+        if (!confirm('Are you sure you want to reset all fields to their original values?')) {
+            e.preventDefault();
+        }
+    });
+
+    // Add animation styles
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.3s ease-out;
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+
+<style>
+    /* Extra small screens */
+    @media (max-width: 480px) {
+        .xs\:inline { display: inline !important; }
+        .xs\:hidden { display: none !important; }
+        .xs\:flex { display: flex !important; }
+    }
+
+    /* Custom select styling */
+    select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.75rem center;
+        background-size: 1.5rem 1.5rem;
+        background-repeat: no-repeat;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+
+    /* Smooth transitions */
+    .transition-all {
+        transition: all 0.2s ease;
+    }
+
+    /* Touch device optimizations */
+    @media (hover: none) {
+        .hover\:shadow-lg:hover { box-shadow: none !important; }
+        .hover\:-translate-y-0\.5:hover { transform: none !important; }
+        .hover\:bg-slate-50:hover { background: inherit !important; }
+        .hover\:border-amber-300:hover { border-color: inherit !important; }
+    }
+
+    /* Safe area support */
+    @supports (padding: max(0px)) {
+        .px-3 { 
+            padding-left: max(0.75rem, env(safe-area-inset-left)); 
+            padding-right: max(0.75rem, env(safe-area-inset-right)); 
+        }
+    }
+
+    /* Custom checkbox styling */
+    input[type="checkbox"] {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border: 2px solid #d1d5db;
+        border-radius: 6px;
+        background: white;
+        transition: all 0.2s ease;
+        position: relative;
+        flex-shrink: 0;
+        cursor: pointer;
+    }
+    input[type="checkbox"]:checked {
+        background: #f59e0b;
+        border-color: #f59e0b;
+    }
+    input[type="checkbox"]:checked::after {
+        content: '✓';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    input[type="checkbox"]:focus {
+        ring: 2px solid #f59e0b;
+    }
+
+    /* Scrollbar for loan types */
+    .max-h-48::-webkit-scrollbar {
+        width: 4px;
+    }
+    .max-h-48::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 10px;
+    }
+    .max-h-48::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+    .max-h-48::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+    /* Textarea resize */
+    textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+</style>
+
 @endsection

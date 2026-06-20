@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\BankController;
 use App\Http\Controllers\Admin\LoanTypeController;
 use App\Http\Controllers\Admin\LeadStatusController;
 use App\Http\Controllers\Admin\DocumentMasterController;
+use App\Http\Controllers\Admin\LeadController;
 
 Route::redirect('/', '/admin/login');
 Route::prefix('admin')->group(function () {
@@ -25,6 +26,12 @@ Route::prefix('admin')->group(function () {
         Route::resource('loan-types', LoanTypeController::class);
 Route::resource('lead-statuses', LeadStatusController::class);
 Route::resource('document-masters', DocumentMasterController::class);
+Route::resource('leads', LeadController::class);
 
+Route::post('/leads/{lead}/assign-agent', [LeadController::class, 'assignAgent'])
+    ->name('leads.assign-agent');
+
+Route::post('/leads/{lead}/update-status', [LeadController::class, 'updateStatus'])
+    ->name('leads.update-status');
     });
 });
