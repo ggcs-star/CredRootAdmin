@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\OtpMail;
-
-
+use Jenssegers\Agent\Agent;
+use App\Services\DeviceIdentificationService;
 class AuthController extends Controller
 {
     public function register(Request $request)
@@ -42,15 +42,14 @@ class AuthController extends Controller
             'success' => true,
             'message' => 'OTP sent successfully'
         ]);
-
     }
+
     public function verifyOtp(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
             'otp' => 'required|digits:6',
         ]);
-
 
         $data = Cache::get('register_' . $request->email);
 
@@ -82,11 +81,9 @@ class AuthController extends Controller
             'success' => true,
             'message' => 'Registration completed successfully'
         ]);
-
-
     }
 
-    public function login(Request $request)
+    public function login(Request $request, DeviceIdentificationService $deviceService)
     {
         $request->validate([
             'email' => 'required|email',
@@ -104,15 +101,52 @@ class AuthController extends Controller
 
         $user = auth('api')->user();
 
+        $userAgent = $request->userAgent();
+        $language = $request->header('Accept-Language');
+        $ip = $request->ip();
+        $appVersion = $request->header('X-App-Version', '1.0.0');
+
+        $agent = new Agent();
+        $agent->setUserAgent($userAgent);
+
+        $rawDeviceId = $request->header('X-Device-ID');
+        if (empty($rawDeviceId)) {
+            $deviceId = 'fb_' . hash('sha256', $userAgent . $language . $ip);
+        } else {
+            $deviceId = $rawDeviceId;
+        }
+
+        $device = $deviceService->processDevice(
+            $user,
+            $deviceId,
+            $appVersion,
+            $ip,
+            $userAgent,
+            $language,
+            $agent
+        );
+
+        if ($device->trust_level === 'BLOCKED') {
+            auth('api')->logout();
+
+            return response()->json([
+                'success' => false,
+                'code' => 403,
+                'message' => 'Access blocked due to high security risk.'
+            ], 403);
+        }
+
         $onboardingData = null;
 
         if ($user->current_step < 6) {
             $profile = \App\Models\UserProfile::where('user_id', $user->id)->first();
             $company = \App\Models\Company::with('members')->where('user_id', $user->id)->first();
             $bankAccounts = $company ? \App\Models\CompanyBankAccount::where('company_id', $company->id)->get() : [];
-$activeLead = \App\Models\Lead::where('user_id', $user->id)
-                            ->latest()
-                            ->first();
+
+            $activeLead = \App\Models\Lead::where('user_id', $user->id)
+                ->latest()
+                ->first();
+
             $onboardingData = [
                 'profile' => $profile,
                 'company' => $company,
@@ -130,10 +164,13 @@ $activeLead = \App\Models\Lead::where('user_id', $user->id)
                 'email' => $user->email,
                 'current_step' => $user->current_step,
             ],
+            'device_info' => [
+                'id' => $device->id,
+                'trust_level' => $device->trust_level
+            ],
             'onboarding_data' => $onboardingData
         ]);
     }
-
 
     public function me()
     {
@@ -153,7 +190,6 @@ $activeLead = \App\Models\Lead::where('user_id', $user->id)
         );
     }
 
-
     public function logout()
     {
         auth('api')->logout();
@@ -163,7 +199,6 @@ $activeLead = \App\Models\Lead::where('user_id', $user->id)
             'message' => 'Logged out successfully'
         ]);
     }
-
 
     protected function respondWithToken($token)
     {
