@@ -18,13 +18,12 @@
         <span class="text-slate-700 font-medium truncate">{{ $lead->lead_number ?? 'Lead Details' }}</span>
     </nav>
 
-    {{-- Header --}}
+    {{-- Header Section --}}
     <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6 hover:shadow-lg transition-shadow">
-
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-
+            
             <div class="flex items-center gap-3 sm:gap-4">
-                <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-base sm:text-xl font-bold shadow-lg shadow-blue-500/20 flex-shrink-0">
+                <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-base sm:text-xl font-bold shadow-lg shadow-blue-500/20 flex-shrink-0">
                     {{ strtoupper(substr($lead->lead_number ?? 'L', -2)) }}
                 </div>
                 <div class="min-w-0">
@@ -32,16 +31,15 @@
                         <span class="truncate">{{ $lead->lead_number }}</span>
                         <span class="text-xs sm:text-sm font-normal text-slate-400 flex-shrink-0">#{{ $lead->id }}</span>
                     </h2>
-                    <p class="text-xs sm:text-sm text-slate-500 flex flex-wrap items-center gap-1 sm:gap-2 mt-0.5 sm:mt-0">
+                    <p class="text-xs sm:text-sm text-slate-500 flex flex-wrap items-center gap-2 mt-1">
                         <span class="flex items-center gap-1">
                             <i class="fas fa-calendar-alt text-blue-400 text-xs"></i>
-                            <span class="hidden xs:inline">Created:</span>
-                            {{ $lead->created_at->format('d M Y') ?? 'N/A' }}
+                            {{ $lead->created_at->format('d M Y, h:i A') ?? 'N/A' }}
                         </span>
-                        <span class="w-1 h-1 bg-slate-300 rounded-full hidden xs:inline"></span>
+                        <span class="w-1 h-1 bg-slate-300 rounded-full hidden sm:inline"></span>
                         <span class="flex items-center gap-1">
-                            <i class="fas fa-user text-blue-400 text-xs"></i>
-                            <span class="truncate max-w-[100px] sm:max-w-[200px]">{{ $lead->user->name ?? 'Unknown User' }}</span>
+                            <i class="fas fa-user-tie text-indigo-400 text-xs"></i>
+                            Agent: <strong class="text-slate-700">{{ $lead->assignedAgent->name ?? 'Unassigned' }}</strong>
                         </span>
                     </p>
                 </div>
@@ -51,24 +49,22 @@
                 {{-- Status Badge --}}
                 @php
                     $statusColor = match($lead->status->name ?? '') {
-                        'New' => 'blue',
-                        'In Progress' => 'yellow',
-                        'Converted' => 'green',
-                        'Lost' => 'red',
-                        'Rejected' => 'red',
-                        'Approved' => 'green',
-                        'Pending' => 'amber',
+                        'New', 'NEW' => 'blue',
+                        'In Progress', 'DRAFT' => 'yellow',
+                        'Converted', 'APPROVED' => 'green',
+                        'Lost', 'REJECTED' => 'red',
+                        'Pending', 'PENDING_DOCS' => 'amber',
                         default => 'gray'
                     };
                 @endphp
-                <span class="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-medium flex-shrink-0
+                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium
                     @if($statusColor == 'blue') bg-blue-100 text-blue-700
                     @elseif($statusColor == 'yellow') bg-yellow-100 text-yellow-700
                     @elseif($statusColor == 'green') bg-green-100 text-green-700
                     @elseif($statusColor == 'red') bg-red-100 text-red-700
                     @elseif($statusColor == 'amber') bg-amber-100 text-amber-700
                     @else bg-slate-100 text-slate-700 @endif">
-                    <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full flex-shrink-0
+                    <span class="w-2 h-2 rounded-full 
                         @if($statusColor == 'blue') bg-blue-500
                         @elseif($statusColor == 'yellow') bg-yellow-500
                         @elseif($statusColor == 'green') bg-green-500
@@ -79,507 +75,361 @@
                     {{ $lead->status->name ?? 'Unknown' }}
                 </span>
 
-                {{-- Pre-qualified Badge --}}
-                @if($lead->is_pre_qualified)
-                    <span class="px-2.5 sm:px-4 py-1 sm:py-2 bg-emerald-100 text-emerald-700 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1 flex-shrink-0">
-                        <i class="fas fa-star text-xs"></i>
-                        <span class="hidden xs:inline">Pre-Qualified</span>
-                        <span class="xs:hidden">Qualified</span>
-                    </span>
-                @else
-                    <span class="px-2.5 sm:px-4 py-1 sm:py-2 bg-slate-100 text-slate-600 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1 flex-shrink-0">
-                        <i class="fas fa-clock text-xs"></i>
-                        <span class="hidden xs:inline">Not Qualified</span>
-                        <span class="xs:hidden">Pending</span>
-                    </span>
-                @endif
-
                 {{-- Action Buttons --}}
-                <div class="flex gap-1.5 sm:gap-2 ml-0 sm:ml-2">
-                    <a href="{{ route('leads.edit', $lead->id) }}" 
-                       class="px-2.5 sm:px-4 py-1.5 sm:py-2 bg-amber-50 text-amber-600 rounded-lg sm:rounded-xl hover:bg-amber-100 transition font-medium text-xs sm:text-sm flex items-center gap-1">
-                        <i class="fas fa-edit text-xs"></i>
-                        <span class="hidden sm:inline">Edit</span>
-                    </a>
-                    <button onclick="window.print()" 
-                            class="px-2.5 sm:px-4 py-1.5 sm:py-2 bg-slate-50 text-slate-600 rounded-lg sm:rounded-xl hover:bg-slate-100 transition font-medium text-xs sm:text-sm flex items-center gap-1">
-                        <i class="fas fa-print text-xs"></i>
-                        <span class="hidden sm:inline">Print</span>
+                <div class="flex gap-2">
+                    <button onclick="window.print()" class="px-3 py-1.5 bg-slate-50 text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-100 transition font-medium text-sm flex items-center gap-1.5">
+                        <i class="fas fa-print"></i> <span class="hidden sm:inline">Print</span>
                     </button>
-                    <a href="{{ route('leads.index') }}" 
-                       class="px-2.5 sm:px-4 py-1.5 sm:py-2 border border-slate-200 text-slate-600 rounded-lg sm:rounded-xl hover:bg-slate-50 transition font-medium text-xs sm:text-sm flex items-center gap-1">
-                        <i class="fas fa-arrow-left text-xs"></i>
-                        <span class="hidden sm:inline">Back</span>
+                    <a href="{{ route('leads.index') }}" class="px-3 py-1.5 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition font-medium text-sm flex items-center gap-1.5">
+                        <i class="fas fa-arrow-left"></i> <span class="hidden sm:inline">Back</span>
                     </a>
                 </div>
             </div>
-
         </div>
-
     </div>
 
     {{-- Quick Stats Row --}}
-    <div class="grid grid-cols-2 xs:grid-cols-4 gap-2 sm:gap-4">
-        <div class="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-sm border border-slate-200">
-            <p class="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider">Loan Amount</p>
-            <p class="text-sm sm:text-xl font-bold text-blue-600 truncate">₹{{ number_format($lead->loan_amount ?? 0, 0) }}</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 border-l-4 border-l-blue-500">
+            <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Requested Amount</p>
+            <p class="text-xl font-bold text-slate-800 mt-1">₹{{ number_format($lead->loan_amount ?? 0, 0) }}</p>
         </div>
-        <div class="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-sm border border-slate-200">
-            <p class="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider">CIBIL</p>
-            <p class="text-sm sm:text-xl font-bold {{ ($lead->cibil_score ?? 0) >= 700 ? 'text-green-600' : ($lead->cibil_score ? 'text-red-600' : 'text-slate-400') }}">
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 border-l-4 {{ ($lead->cibil_score ?? 0) >= 700 ? 'border-l-green-500' : 'border-l-amber-500' }}">
+            <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">CIBIL Score</p>
+            <p class="text-xl font-bold {{ ($lead->cibil_score ?? 0) >= 700 ? 'text-green-600' : 'text-amber-600' }}">
                 {{ $lead->cibil_score ?? 'N/A' }}
             </p>
         </div>
-        <div class="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-sm border border-slate-200">
-            <p class="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider">Applications</p>
-            <p class="text-sm sm:text-xl font-bold text-purple-600">{{ $lead->loanApplications->count() ?? 0 }}</p>
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 border-l-4 border-l-purple-500">
+            <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Avg Bank Balance</p>
+            <p class="text-xl font-bold text-slate-800 mt-1">₹{{ number_format($lead->average_bank_balance ?? 0, 0) }}</p>
         </div>
-        <div class="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-sm border border-slate-200">
-            <p class="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider">Documents</p>
-            <p class="text-sm sm:text-xl font-bold text-amber-600">{{ $lead->documents->count() ?? 0 }}</p>
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 border-l-4 border-l-emerald-500">
+            <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Status</p>
+            <div class="mt-1">
+                @if($lead->is_pre_qualified)
+                    <span class="text-sm font-bold text-emerald-600 flex items-center gap-1"><i class="fas fa-check-circle"></i> Pre-Qualified</span>
+                @else
+                    <span class="text-sm font-bold text-slate-500 flex items-center gap-1"><i class="fas fa-clock"></i> Not Qualified</span>
+                @endif
+            </div>
         </div>
     </div>
 
     <div class="grid lg:grid-cols-3 gap-4 sm:gap-6">
 
-        {{-- Left Side --}}
+        {{-- Left Side (Main Content) --}}
         <div class="lg:col-span-2 space-y-4 sm:space-y-6">
 
-            {{-- Lead Info --}}
-            <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-
-                <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-xl sm:rounded-t-2xl">
-                    <h3 class="font-semibold text-slate-800 flex items-center gap-2 text-sm sm:text-base">
-                        <i class="fas fa-info-circle text-blue-500"></i>
-                        Lead Information
+            {{-- Loan Application Details --}}
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-200 bg-slate-50">
+                    <h3 class="font-semibold text-slate-800 flex items-center gap-2">
+                        <i class="fas fa-file-invoice-dollar text-blue-500"></i> Loan Requirement
                     </h3>
                 </div>
-
-                <div class="p-4 sm:p-6 grid grid-cols-1 xs:grid-cols-2 gap-4 sm:gap-6">
-
+                <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
-                        <p class="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider">Company</p>
-                        <p class="font-semibold text-slate-800 mt-1 text-sm sm:text-base">
-                            {{ $lead->company->company_name ?? '-' }}
-                        </p>
-                        @if($lead->company)
-                            <p class="text-xs text-slate-400 mt-0.5">{{ $lead->company->city ?? '' }}{{ ($lead->company->city && $lead->company->state) ? ', ' : '' }}{{ $lead->company->state ?? '' }}</p>
-                        @endif
-                    </div>
-
-                    <div>
-                        <p class="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider">Loan Type</p>
-                        <p class="font-semibold text-slate-800 mt-1">
-                            <span class="px-2 py-0.5 sm:py-1 bg-blue-100 text-blue-700 rounded-lg text-xs sm:text-sm inline-block">
-                                {{ $lead->loanType->name ?? '-' }}
-                            </span>
+                        <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Loan Type</p>
+                        <p class="font-medium text-slate-800 bg-slate-100 px-3 py-1.5 rounded-lg inline-block text-sm">
+                            {{ $lead->loanType->name ?? 'Not Specified' }}
                         </p>
                     </div>
-
-                    <div>
-                        <p class="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider">Loan Amount</p>
-                        <p class="font-bold text-lg sm:text-2xl text-green-600 mt-1">
-                            ₹{{ number_format($lead->loan_amount ?? 0, 2) }}
+                    
+                    @if($lead->is_pre_qualified)
+                    <div class="bg-green-50 p-3 rounded-xl border border-green-100">
+                        <p class="text-xs text-green-600 uppercase tracking-wider mb-1 font-semibold flex items-center gap-1">
+                            <i class="fas fa-certificate"></i> Pre-Approved Range
                         </p>
-                    </div>
-
-                    <div>
-                        <p class="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider">Avg Bank Balance</p>
-                        <p class="font-semibold text-slate-800 mt-1 text-sm sm:text-base">
-                            ₹{{ number_format($lead->average_bank_balance ?? 0, 2) }}
-                        </p>
-                    </div>
-
-                    <div>
-                        <p class="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider">CIBIL Score</p>
-                        <p class="font-semibold text-slate-800 mt-1 flex flex-wrap items-center gap-1 sm:gap-2 text-sm sm:text-base">
-                            {{ $lead->cibil_score ?? '-' }}
-                            @if(($lead->cibil_score ?? 0) >= 700)
-                                <span class="text-[10px] sm:text-xs bg-green-100 text-green-700 px-1.5 sm:px-2 py-0.5 rounded">Good</span>
-                            @elseif(($lead->cibil_score ?? 0) >= 600)
-                                <span class="text-[10px] sm:text-xs bg-yellow-100 text-yellow-700 px-1.5 sm:px-2 py-0.5 rounded">Average</span>
-                            @elseif(($lead->cibil_score ?? 0) > 0)
-                                <span class="text-[10px] sm:text-xs bg-red-100 text-red-700 px-1.5 sm:px-2 py-0.5 rounded">Low</span>
-                            @endif
-                        </p>
-                    </div>
-
-                    <div>
-                        <p class="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider">Pre Qualified</p>
-                        <div class="mt-1">
-                            @if($lead->is_pre_qualified)
-                                <span class="px-2.5 sm:px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs sm:text-sm flex items-center gap-1 w-fit">
-                                    <i class="fas fa-check-circle text-xs"></i> Yes
-                                </span>
-                            @else
-                                <span class="px-2.5 sm:px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs sm:text-sm flex items-center gap-1 w-fit">
-                                    <i class="fas fa-times-circle text-xs"></i> No
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-
-                    {{-- Additional Fields --}}
-                    @if($lead->message)
-                    <div class="col-span-1 xs:col-span-2">
-                        <p class="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider">Message / Notes</p>
-                        <p class="text-slate-700 mt-1 bg-slate-50 p-2 sm:p-3 rounded-lg border border-slate-200 text-sm">
-                            {{ $lead->message }}
+                        <p class="font-bold text-green-700 text-lg">
+                            ₹{{ number_format($lead->pre_approved_min_amount ?? 0) }} - ₹{{ number_format($lead->pre_approved_max_amount ?? 0) }}
                         </p>
                     </div>
                     @endif
-
                 </div>
-
             </div>
 
-            {{-- Customer Information --}}
-            <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-
-                <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 bg-gradient-to-r from-green-50 to-emerald-50 rounded-t-xl sm:rounded-t-2xl">
-                    <h3 class="font-semibold text-slate-800 flex items-center gap-2 text-sm sm:text-base">
-                        <i class="fas fa-user-circle text-green-500"></i>
-                        Customer Information
+            {{-- Business / Company Details (Crucial for MSME) --}}
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                    <h3 class="font-semibold text-slate-800 flex items-center gap-2">
+                        <i class="fas fa-building text-indigo-500"></i> Business Details
                     </h3>
+                    <span class="text-xs bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-md font-medium">
+                        {{ $lead->company->entity_type ?? 'Business' }}
+                    </span>
                 </div>
-
-                <div class="p-4 sm:p-6 grid grid-cols-1 xs:grid-cols-2 gap-4 sm:gap-6">
-
-                    <div class="flex items-center gap-3 col-span-1 xs:col-span-2">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r from-blue-400 to-indigo-600 flex items-center justify-center text-white font-bold text-sm sm:text-lg flex-shrink-0">
-                            {{ strtoupper(substr($lead->user->name ?? 'U', 0, 2)) }}
+                <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
+                    <div class="col-span-1 sm:col-span-2 flex items-center gap-4 border-b border-slate-100 pb-4">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-500 text-xl font-bold">
+                            <i class="fas fa-store"></i>
                         </div>
                         <div>
-                            <p class="font-semibold text-slate-800 text-sm sm:text-base">{{ $lead->user->name ?? '-' }}</p>
-                            <p class="text-[10px] sm:text-xs text-slate-400">Customer</p>
+                            <p class="text-lg font-bold text-slate-800">{{ $lead->company->company_name ?? 'N/A' }}</p>
+                            <p class="text-sm text-slate-500">{{ $lead->company->city ?? '' }}, {{ $lead->company->state ?? '' }}</p>
                         </div>
                     </div>
 
                     <div>
-                        <p class="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider">Email</p>
-                        <p class="font-semibold text-slate-800 mt-1 text-sm sm:text-base truncate">
-                            <a href="mailto:{{ $lead->user->email ?? '' }}" class="text-blue-600 hover:underline">
-                                {{ $lead->user->email ?? '-' }}
-                            </a>
-                        </p>
+                        <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">PAN Number</p>
+                        <p class="font-medium text-slate-800">{{ $lead->company->pan_number ?? 'Not Provided' }}</p>
                     </div>
-
                     <div>
-                        <p class="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider">Mobile</p>
-                        <p class="font-semibold text-slate-800 mt-1 text-sm sm:text-base">
-                            <a href="tel:{{ $lead->user->mobile ?? '' }}" class="text-blue-600 hover:underline">
-                                {{ $lead->user->mobile ?? '-' }}
-                            </a>
-                        </p>
+                        <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">GST Number</p>
+                        <p class="font-medium text-slate-800">{{ $lead->company->gst_number ?? 'Not Provided' }}</p>
                     </div>
-
                     <div>
-                        <p class="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider">Joined</p>
-                        <p class="font-semibold text-slate-800 mt-1 text-sm sm:text-base">
-                            {{ $lead->user->created_at->format('d M Y') ?? '-' }}
-                        </p>
+                        <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Monthly Revenue</p>
+                        <p class="font-medium text-slate-800">₹{{ number_format($lead->company->monthly_revenue ?? 0, 2) }}</p>
                     </div>
-
+                    <div>
+                        <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Annual Turnover</p>
+                        <p class="font-medium text-slate-800">₹{{ number_format($lead->company->turnover ?? 0, 2) }}</p>
+                    </div>
                 </div>
+            </div>
 
+            {{-- Applicant Information --}}
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-200 bg-slate-50">
+                    <h3 class="font-semibold text-slate-800 flex items-center gap-2">
+                        <i class="fas fa-user-circle text-emerald-500"></i> Applicant Information
+                    </h3>
+                </div>
+                <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                        <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Full Name</p>
+                        <p class="font-medium text-slate-800">{{ $lead->user->name ?? 'N/A' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Mobile Number</p>
+                        <a href="tel:{{ $lead->user->mobile ?? '' }}" class="font-medium text-blue-600 hover:underline">
+                            {{ $lead->user->mobile ?? 'N/A' }}
+                        </a>
+                    </div>
+                    <div class="col-span-1 sm:col-span-2">
+                        <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Email Address</p>
+                        <a href="mailto:{{ $lead->user->email ?? '' }}" class="font-medium text-blue-600 hover:underline">
+                            {{ $lead->user->email ?? 'N/A' }}
+                        </a>
+                    </div>
+                </div>
             </div>
 
             {{-- Applied Banks --}}
-            <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-
-                <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 bg-gradient-to-r from-purple-50 to-pink-50 rounded-t-xl sm:rounded-t-2xl flex flex-wrap justify-between items-center gap-2">
-                    <h3 class="font-semibold text-slate-800 flex items-center gap-2 text-sm sm:text-base">
-                        <i class="fas fa-university text-purple-500"></i>
-                        Applied Banks
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                    <h3 class="font-semibold text-slate-800 flex items-center gap-2">
+                        <i class="fas fa-university text-purple-500"></i> Applied Banks
                     </h3>
-                    <span class="text-[10px] sm:text-xs bg-purple-100 text-purple-700 px-2 py-0.5 sm:py-1 rounded-full">
-                        {{ $lead->loanApplications->count() ?? 0 }} applications
+                    <span class="badge bg-purple-100 text-purple-700 px-2.5 py-1 rounded-full text-xs font-semibold">
+                        {{ $lead->loanApplications->count() ?? 0 }} Banks
                     </span>
                 </div>
-
-                <div class="p-4 sm:p-6">
-
+                <div class="p-5">
                     @forelse($lead->loanApplications as $application)
-                        <div class="border border-slate-200 rounded-lg sm:rounded-xl p-3 sm:p-4 mb-2 sm:mb-3 hover:border-blue-300 transition last:mb-0">
-                            <div class="flex flex-col xs:flex-row xs:justify-between xs:items-start gap-2">
-                                <div class="min-w-0">
-                                    <h4 class="font-semibold text-slate-800 flex items-center gap-2 text-sm sm:text-base">
-                                        <i class="fas fa-building text-blue-500 text-xs sm:text-sm"></i>
-                                        <span class="truncate">{{ $application->bank->name ?? 'N/A' }}</span>
-                                    </h4>
-                                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5 sm:mt-1">
-                                        <i class="fas fa-calendar-alt text-[10px]"></i>
-                                        Applied: {{ $application->created_at->format('d M Y') ?? 'N/A' }}
-                                    </p>
-                                    @if($application->remarks)
-                                        <p class="text-xs sm:text-sm text-slate-600 mt-1.5 sm:mt-2 bg-slate-50 p-1.5 sm:p-2 rounded-lg border border-slate-100">
-                                            <i class="fas fa-comment text-slate-400 text-xs"></i>
-                                            {{ $application->remarks }}
-                                        </p>
-                                    @endif
+                        <div class="flex items-center justify-between p-4 border border-slate-100 rounded-xl mb-3 hover:bg-slate-50 transition last:mb-0">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-600">
+                                    <i class="fas fa-landmark"></i>
                                 </div>
-                                <span class="px-2 py-0.5 sm:py-1 bg-blue-100 text-blue-700 rounded-lg text-[10px] sm:text-xs font-medium whitespace-nowrap flex-shrink-0">
-                                    Applied
-                                </span>
+                                <div>
+                                    <p class="font-semibold text-slate-800">{{ $application->bank->name ?? 'Bank Name' }}</p>
+                                    <p class="text-xs text-slate-500">Applied on: {{ $application->created_at->format('d M Y') }}</p>
+                                </div>
                             </div>
+                            <span class="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-medium border border-blue-100">
+                                Sent
+                            </span>
                         </div>
                     @empty
-                        <div class="text-center py-6 sm:py-8 text-slate-400">
-                            <i class="fas fa-building text-3xl sm:text-4xl block mb-2 sm:mb-3 opacity-20"></i>
-                            <p class="text-sm sm:text-base">No Bank Applications Found.</p>
+                        <div class="text-center py-8 text-slate-400">
+                            <i class="fas fa-university text-4xl mb-3 opacity-20"></i>
+                            <p>No Bank Applications Found.</p>
                         </div>
                     @endforelse
-
                 </div>
-
             </div>
 
-            {{-- Documents --}}
-            <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-
-                <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 bg-gradient-to-r from-amber-50 to-orange-50 rounded-t-xl sm:rounded-t-2xl flex flex-wrap justify-between items-center gap-2">
-                    <h3 class="font-semibold text-slate-800 flex items-center gap-2 text-sm sm:text-base">
-                        <i class="fas fa-file-alt text-amber-500"></i>
-                        Uploaded Documents
+            {{-- Uploaded Documents --}}
+           {{-- Uploaded Documents --}}
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                    <h3 class="font-semibold text-slate-800 flex items-center gap-2">
+                        <i class="fas fa-file-pdf text-amber-500"></i> Uploaded Documents
                     </h3>
-                    <span class="text-[10px] sm:text-xs bg-amber-100 text-amber-700 px-2 py-0.5 sm:py-1 rounded-full">
-                        {{ $lead->documents->count() ?? 0 }} documents
+                    <span class="badge bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full text-xs font-semibold">
+                        {{ $lead->documents->count() ?? 0 }} Files
                     </span>
                 </div>
-
-                <div class="p-4 sm:p-6">
-
+                <div class="p-5">
                     @forelse($lead->documents as $document)
-                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-slate-100 py-2.5 sm:py-3 last:border-0 hover:bg-slate-50 -mx-2 px-2 rounded-lg transition gap-2 sm:gap-0">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500 flex-shrink-0">
-                                    <i class="fas fa-file-pdf text-base sm:text-xl"></i>
+                        @php
+                            $master = $document->master;
+                        @endphp
+                        
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-slate-100 rounded-xl mb-3 hover:bg-slate-50 hover:border-slate-200 transition-all last:mb-0 gap-4">
+                            
+                            <div class="flex items-start gap-3 sm:gap-4 min-w-0">
+                                {{-- Document Icon --}}
+                                <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-500 flex-shrink-0 mt-1 border border-amber-100">
+                                    <i class="fas fa-file-invoice text-lg"></i>
                                 </div>
-                                <div class="min-w-0">
-                                    <p class="font-medium text-slate-800 text-sm sm:text-base truncate">{{ $document->document_name }}</p>
-                                    <p class="text-[10px] sm:text-xs text-slate-400">
-                                        <i class="fas fa-clock"></i>
-                                        {{ $document->created_at->diffForHumans() ?? 'N/A' }}
-                                    </p>
+                                
+                                {{-- Document Details --}}
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                                        {{-- Document Name --}}
+                                        <p class="font-bold text-slate-800 text-sm sm:text-base truncate">
+                                            {{ $master->name ?? ucfirst($document->document_side) . ' Document' }}
+                                        </p>
+                                        
+                                        {{-- Document Code Badge --}}
+                                        @if($master)
+                                            <span class="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold tracking-wide border border-slate-200">
+                                                {{ $master->document_code }}
+                                            </span>
+                                            
+                                            {{-- Mandatory / Optional Tag --}}
+                                            @if($master->is_mandatory)
+                                                <span class="text-[10px] px-2 py-0.5 rounded bg-red-50 text-red-600 font-bold tracking-wide border border-red-100">
+                                                    MANDATORY
+                                                </span>
+                                            @else
+                                                <span class="text-[10px] px-2 py-0.5 rounded bg-slate-50 text-slate-500 font-bold tracking-wide border border-slate-200">
+                                                    OPTIONAL
+                                                </span>
+                                            @endif
+                                        @endif
+                                    </div>
+                                    
+                                    {{-- Document Description --}}
+                                    @if($master && $master->description)
+                                        <p class="text-xs text-slate-500 mb-2 truncate" title="{{ $master->description }}">
+                                            {{ $master->description }}
+                                        </p>
+                                    @endif
+
+                                    {{-- Metadata (Side, Date, Requirements) --}}
+                                    <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-[10px] sm:text-xs text-slate-500 font-medium">
+                                        <span class="flex items-center gap-1 bg-white px-2 py-1 rounded border border-slate-100 shadow-sm">
+                                            <i class="fas fa-layer-group text-slate-400"></i> Side: <strong class="text-slate-700">{{ ucfirst($document->document_side) }}</strong>
+                                        </span>
+                                        <span class="flex items-center gap-1">
+                                            <i class="fas fa-clock text-slate-400"></i> {{ $document->created_at->format('d M Y, h:i A') }}
+                                        </span>
+                                        @if($master && $master->sides_required !== null)
+                                            <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                                            <span class="text-slate-400">
+                                                Required: {{ $master->sides_required == 2 ? 'Front & Back' : ($master->sides_required == 1 ? 'Front Only' : 'Single File') }}
+                                            </span>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
-                            <a href="{{ asset($document->file_path) }}"
-                               target="_blank"
-                               class="text-blue-600 hover:text-blue-800 font-medium text-xs sm:text-sm flex items-center gap-1 flex-shrink-0 ml-11 sm:ml-0">
-                                <i class="fas fa-eye"></i> <span class="hidden xs:inline">View</span>
-                            </a>
+                            
+                            {{-- Action Button --}}
+                            <div class="flex-shrink-0 self-start sm:self-center ml-13 sm:ml-0">
+                                <a href="{{ asset('storage/' . $document->file_path) }}" 
+                                   target="_blank" 
+                                   class="inline-flex items-center gap-1.5 text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors border border-blue-100 hover:border-blue-600 shadow-sm">
+                                    <i class="fas fa-external-link-alt"></i> View File
+                                </a>
+                            </div>
+                            
                         </div>
                     @empty
-                        <div class="text-center py-6 sm:py-8 text-slate-400">
-                            <i class="fas fa-file text-3xl sm:text-4xl block mb-2 sm:mb-3 opacity-20"></i>
-                            <p class="text-sm sm:text-base">No Documents Uploaded.</p>
+                        <div class="text-center py-10 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                            <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm border border-slate-100">
+                                <i class="fas fa-folder-open text-2xl text-slate-300"></i>
+                            </div>
+                            <p class="text-slate-500 font-medium">No Documents Uploaded Yet.</p>
+                            <p class="text-xs text-slate-400 mt-1">Files uploaded by the user will appear here.</p>
                         </div>
                     @endforelse
-
                 </div>
-
             </div>
 
         </div>
 
-        {{-- Right Side - Actions --}}
+        {{-- Right Side (Sidebar / Actions) --}}
         <div class="space-y-4 sm:space-y-6">
 
-            {{-- Update Status --}}
-            <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200">
-
-                <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 bg-gradient-to-r from-green-50 to-emerald-50 rounded-t-xl sm:rounded-t-2xl">
-                    <h3 class="font-semibold text-slate-800 flex items-center gap-2 text-sm sm:text-base">
-                        <i class="fas fa-exchange-alt text-green-500"></i>
-                        Update Status
+            {{-- Update Lead Status --}}
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-200 bg-slate-50">
+                    <h3 class="font-semibold text-slate-800 flex items-center gap-2">
+                        <i class="fas fa-sync-alt text-blue-500"></i> Manage Status
                     </h3>
                 </div>
-
-                <div class="p-4 sm:p-6">
-
-                    <form method="POST"
-                          action="{{ route('leads.update-status', $lead->id) }}">
-
+                <div class="p-5">
+                    <form method="POST" action="{{ route('leads.update-status', $lead->id) }}">
                         @csrf
                         @method('PUT')
-
                         <div class="space-y-3">
-                            <label class="text-xs sm:text-sm text-slate-600 font-medium">Current Status</label>
-                            <select name="status_id"
-                                    class="w-full border border-slate-300 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition">
-
+                            <label class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Current Status</label>
+                            <select name="status_id" class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
                                 @foreach($statuses as $status)
-                                    <option value="{{ $status->id }}"
-                                        {{ $lead->status_id == $status->id ? 'selected' : '' }}>
+                                    <option value="{{ $status->id }}" {{ $lead->status_id == $status->id ? 'selected' : '' }}>
                                         {{ $status->name }}
                                     </option>
                                 @endforeach
-
                             </select>
-
-                            <button type="submit"
-                                    class="w-full mt-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-medium transition-all hover:shadow-lg hover:shadow-green-500/20 active:scale-95 flex items-center justify-center gap-2 text-sm sm:text-base">
-                                <i class="fas fa-save"></i> Update Status
+                            <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-2.5 rounded-xl font-medium transition flex items-center justify-center gap-2 text-sm">
+                                Update Status
                             </button>
                         </div>
-
-                    </form>
-
-                </div>
-
-            </div>
-
-            {{-- Quick Actions --}}
-            <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200">
-
-                <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-xl sm:rounded-t-2xl">
-                    <h3 class="font-semibold text-slate-800 flex items-center gap-2 text-sm sm:text-base">
-                        <i class="fas fa-bolt text-blue-500"></i>
-                        Quick Actions
-                    </h3>
-                </div>
-
-                <div class="p-3 sm:p-4 space-y-1.5 sm:space-y-2">
-                    <a href="{{ route('leads.edit', $lead->id) }}" 
-                       class="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 bg-amber-50 text-amber-700 rounded-lg sm:rounded-xl hover:bg-amber-100 transition font-medium text-xs sm:text-sm">
-                        <i class="fas fa-edit text-xs sm:text-sm"></i>
-                        <span class="truncate">Edit Lead Details</span>
-                    </a>
-                    <a href="#" 
-                       class="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 bg-blue-50 text-blue-700 rounded-lg sm:rounded-xl hover:bg-blue-100 transition font-medium text-xs sm:text-sm">
-                        <i class="fas fa-file-invoice text-xs sm:text-sm"></i>
-                        <span class="truncate">Create Application</span>
-                    </a>
-                    <a href="#" 
-                       class="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 bg-purple-50 text-purple-700 rounded-lg sm:rounded-xl hover:bg-purple-100 transition font-medium text-xs sm:text-sm">
-                        <i class="fas fa-upload text-xs sm:text-sm"></i>
-                        <span class="truncate">Upload Documents</span>
-                    </a>
-                    <button onclick="if(confirm('Are you sure you want to delete this lead?')) { document.getElementById('delete-form').submit(); }"
-                            class="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 bg-red-50 text-red-700 rounded-lg sm:rounded-xl hover:bg-red-100 transition font-medium text-xs sm:text-sm">
-                        <i class="fas fa-trash text-xs sm:text-sm"></i>
-                        <span class="truncate">Delete Lead</span>
-                    </button>
-                    <form id="delete-form" action="{{ route('leads.destroy', $lead->id) }}" method="POST" class="hidden">
-                        @csrf
-                        @method('DELETE')
                     </form>
                 </div>
-
             </div>
+
+      
 
             {{-- Lead Timeline --}}
-            <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200">
-
-                <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100 rounded-t-xl sm:rounded-t-2xl">
-                    <h3 class="font-semibold text-slate-800 flex items-center gap-2 text-sm sm:text-base">
-                        <i class="fas fa-history text-slate-500"></i>
-                        Activity Timeline
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-200 bg-slate-50">
+                    <h3 class="font-semibold text-slate-800 flex items-center gap-2">
+                        <i class="fas fa-history text-slate-500"></i> Activity Timeline
                     </h3>
                 </div>
+                <div class="p-5">
+                    <div class="relative border-l border-slate-200 ml-3 space-y-6">
+                        
+                        <div class="relative pl-6">
+                            <span class="absolute -left-1.5 top-1 w-3 h-3 rounded-full bg-blue-500 ring-4 ring-white"></span>
+                            <p class="text-sm font-medium text-slate-800">Lead Created</p>
+                            <p class="text-xs text-slate-400 mt-1">{{ $lead->created_at->format('d M Y, h:i A') }}</p>
+                        </div>
 
-                <div class="p-3 sm:p-4 max-h-48 sm:max-h-60 overflow-y-auto">
-                    <div class="space-y-2 sm:space-y-3">
-                        <div class="flex items-start gap-2 sm:gap-3">
-                            <div class="w-1.5 h-1.5 sm:w-2 sm:h-2 mt-1.5 sm:mt-2 bg-blue-500 rounded-full flex-shrink-0"></div>
-                            <div class="min-w-0">
-                                <p class="text-xs sm:text-sm text-slate-700">Lead created</p>
-                                <p class="text-[10px] sm:text-xs text-slate-400">{{ $lead->created_at->diffForHumans() ?? 'N/A' }}</p>
-                            </div>
-                        </div>
                         @if($lead->updated_at != $lead->created_at)
-                        <div class="flex items-start gap-2 sm:gap-3">
-                            <div class="w-1.5 h-1.5 sm:w-2 sm:h-2 mt-1.5 sm:mt-2 bg-green-500 rounded-full flex-shrink-0"></div>
-                            <div class="min-w-0">
-                                <p class="text-xs sm:text-sm text-slate-700">Last updated</p>
-                                <p class="text-[10px] sm:text-xs text-slate-400">{{ $lead->updated_at->diffForHumans() ?? 'N/A' }}</p>
-                            </div>
+                        <div class="relative pl-6">
+                            <span class="absolute -left-1.5 top-1 w-3 h-3 rounded-full bg-green-500 ring-4 ring-white"></span>
+                            <p class="text-sm font-medium text-slate-800">Profile Updated</p>
+                            <p class="text-xs text-slate-400 mt-1">{{ $lead->updated_at->format('d M Y, h:i A') }}</p>
                         </div>
                         @endif
-                        @if($lead->status)
-                        <div class="flex items-start gap-2 sm:gap-3">
-                            <div class="w-1.5 h-1.5 sm:w-2 sm:h-2 mt-1.5 sm:mt-2 bg-amber-500 rounded-full flex-shrink-0"></div>
-                            <div class="min-w-0">
-                                <p class="text-xs sm:text-sm text-slate-700">Status: {{ $lead->status->name ?? 'Unknown' }}</p>
-                                <p class="text-[10px] sm:text-xs text-slate-400">Current status</p>
-                            </div>
+
+                        @if($lead->documents->count() > 0)
+                        <div class="relative pl-6">
+                            <span class="absolute -left-1.5 top-1 w-3 h-3 rounded-full bg-amber-500 ring-4 ring-white"></span>
+                            <p class="text-sm font-medium text-slate-800">Documents Uploaded</p>
+                            <p class="text-xs text-slate-400 mt-1">{{ $lead->documents->last()->created_at->format('d M Y, h:i A') }}</p>
                         </div>
                         @endif
+
                     </div>
                 </div>
-
             </div>
 
         </div>
-
     </div>
-
 </div>
-
-<script>
-    // Print functionality
-    function printLead() {
-        window.print();
-    }
-
-    // Auto-refresh status on change (optional)
-    document.querySelector('select[name="status_id"]')?.addEventListener('change', function() {
-        this.closest('form').querySelector('button[type="submit"]').style.opacity = '0.7';
-    });
-
-    // Touch-friendly improvements
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add active state for touch devices
-        document.querySelectorAll('.hover\\:bg-\\[color\\]').forEach(el => {
-            el.addEventListener('touchstart', function() {
-                this.classList.add('active');
-            }, { passive: true });
-        });
-    });
-</script>
 
 <style>
     @media print {
-        .no-print { display: none !important; }
+        .no-print, nav, .bg-slate-800 { display: none !important; }
         .bg-white { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
-        .sticky { position: static !important; }
-    }
-
-    /* Custom scrollbar */
-    .max-h-48::-webkit-scrollbar,
-    .max-h-60::-webkit-scrollbar {
-        width: 3px;
-    }
-    .max-h-48::-webkit-scrollbar-track,
-    .max-h-60::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-    .max-h-48::-webkit-scrollbar-thumb,
-    .max-h-60::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 10px;
-    }
-    .max-h-48::-webkit-scrollbar-thumb:hover,
-    .max-h-60::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
-    }
-
-    /* Extra small screens (xs) */
-    @media (max-width: 480px) {
-        .xs\:inline { display: inline !important; }
-        .xs\:hidden { display: none !important; }
-    }
-
-    /* Touch device optimizations */
-    @media (hover: none) {
-        .hover\:shadow-lg:hover { box-shadow: none !important; }
-        .hover\:scale-105:hover { transform: none !important; }
-    }
-
-    /* Safe area for notch phones */
-    @supports (padding: max(0px)) {
-        .px-3 { padding-left: max(0.75rem, env(safe-area-inset-left)); padding-right: max(0.75rem, env(safe-area-inset-right)); }
+        body { background: white !important; }
     }
 </style>
 

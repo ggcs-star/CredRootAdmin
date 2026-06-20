@@ -19,8 +19,8 @@ class LeadController extends Controller
             'status',
             'assignedAgent'
         ])
-        ->latest()
-        ->paginate(20);
+            ->latest()
+            ->paginate(20);
 
         return view('admin.leads.index', compact('leads'));
     }
