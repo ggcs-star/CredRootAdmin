@@ -42,15 +42,15 @@
             Management
         </p>
 
-        <a href="#"
-           class="sidebar-link">
-            <i class="fas fa-file-invoice"></i>
-            <span>Loan Applications</span>
+       <a href="{{ route('leads.index') }}"
+   class="sidebar-link {{ request()->routeIs('leads.*') ? 'active' : '' }}">
+    <i class="fas fa-file-invoice"></i>
+    <span>Loan Applications</span>
 
-            <span class="ml-auto bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded-full text-xs">
-                5
-            </span>
-        </a>
+    <span class="ml-auto bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded-full text-xs">
+        {{ \App\Models\Lead::count() }}
+    </span>
+</a>
 
         <a href="#"
            class="sidebar-link">

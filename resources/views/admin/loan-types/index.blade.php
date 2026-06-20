@@ -6,94 +6,337 @@
 
 @section('content')
 
-<div class="max-w-7xl mx-auto">
+<div class="max-w-7xl mx-auto px-3 sm:px-4">
 
-@if(session('success'))
-    <div class="mb-6 bg-green-100 border border-green-200 text-green-700 px-4 py-3 rounded-xl">
-        {{ session('success') }}
-    </div>
-@endif
-
-<div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
-
-    <div class="flex items-center justify-between px-6 py-5 border-b border-slate-200">
-        <div>
-            <h2 class="text-xl font-bold text-slate-800">Loan Types</h2>
-            <p class="text-sm text-slate-500">Manage all available loan products</p>
+    {{-- Stats Overview --}}
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-5 sm:mb-6">
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-400 uppercase tracking-wider">Total Types</p>
+                    <p class="text-2xl font-bold text-slate-800">{{ $loanTypes->total() }}</p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                    <i class="fas fa-tags text-blue-600"></i>
+                </div>
+            </div>
         </div>
-        <a href="{{ route('loan-types.create') }}"
-           class="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-md transition">
-            + Add Loan Type
-        </a>
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-400 uppercase tracking-wider">Active</p>
+                    <p class="text-2xl font-bold text-green-600">{{ $activeCount ?? $loanTypes->where('status', 1)->count() }}</p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                    <i class="fas fa-check-circle text-green-600"></i>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-400 uppercase tracking-wider">Inactive</p>
+                    <p class="text-2xl font-bold text-red-600">{{ $inactiveCount ?? $loanTypes->where('status', 0)->count() }}</p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                    <i class="fas fa-times-circle text-red-600"></i>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-400 uppercase tracking-wider">Last Added</p>
+                    <p class="text-sm font-bold text-purple-600 truncate">
+                        {{ $loanTypes->first()?->created_at?->format('d M Y') ?? 'N/A' }}
+                    </p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                    <i class="fas fa-calendar-plus text-purple-600"></i>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="overflow-x-auto">
-        <table class="min-w-full">
-            <thead class="bg-slate-50 border-b border-slate-200">
-                <tr>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-slate-700">#</th>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-slate-700">Icon</th>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-slate-700">Loan Type</th>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-slate-700">Description</th>
-                    <th class="px-6 py-4 text-left text-sm font-semibold text-slate-700">Status</th>
-                    <th class="px-6 py-4 text-center text-sm font-semibold text-slate-700">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-            @forelse($loanTypes as $loanType)
-                <tr class="border-b border-slate-100 hover:bg-slate-50">
-                    <td class="px-6 py-4 text-slate-600">{{ $loop->iteration }}</td>
-                    
-                    <td class="px-6 py-4">
-                        @if($loanType->icon_path)
-                            <img src="{{ asset('storage/' . $loanType->icon_path) }}" alt="Icon" class="w-10 h-10 object-contain bg-slate-100 rounded p-1">
-                        @else
-                            <div class="w-10 h-10 flex items-center justify-center bg-slate-100 rounded text-slate-400 text-xs">No img</div>
-                        @endif
-                    </td>
+    {{-- Success Message --}}
+    @if(session('success'))
+        <div class="mb-5 p-4 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 text-green-700 flex items-start gap-3">
+            <i class="fas fa-check-circle text-green-500 text-xl mt-0.5"></i>
+            <div>
+                <p class="font-medium">{{ session('success') }}</p>
+            </div>
+            <button onclick="this.parentElement.style.display='none'" class="ml-auto text-green-500 hover:text-green-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    @endif
 
-                    <td class="px-6 py-4">
-                        <div class="font-medium text-slate-800">{{ $loanType->name }}</div>
-                        <div class="text-xs text-slate-500 font-mono">{{ $loanType->slug }}</div>
-                    </td>
+    <div class="bg-white rounded-2xl shadow-lg shadow-blue-500/5 border border-slate-200 overflow-hidden">
 
-                    <td class="px-6 py-4 text-slate-600 max-w-md truncate" title="{{ $loanType->description }}">
-                        {{ $loanType->description ?? 'N/A' }}
-                    </td>
+        {{-- Header --}}
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-5 sm:px-8 py-5 sm:py-6 border-b border-slate-200 bg-gradient-to-r from-blue-50 via-indigo-50/50 to-blue-50">
+            <div>
+                <h2 class="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-3">
+                    <span class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                        <i class="fas fa-tags text-base sm:text-lg"></i>
+                    </span>
+                    <span>Loan Types</span>
+                </h2>
+                <p class="text-sm text-slate-500 mt-1 ml-0 sm:ml-14">
+                    <i class="fas fa-info-circle text-blue-400 mr-1"></i>
+                    Manage all available loan products
+                </p>
+            </div>
+            <div class="flex gap-2.5">
+                <button onclick="window.location.reload()" 
+                        class="px-4 py-2.5 border border-slate-300 text-slate-600 rounded-xl hover:bg-slate-50 transition-all font-medium text-sm flex items-center gap-2">
+                    <i class="fas fa-sync-alt"></i>
+                    <span class="hidden xs:inline">Refresh</span>
+                </button>
+                <a href="{{ route('loan-types.create') }}"
+                   class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-medium transition-all hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 flex items-center gap-2 text-sm">
+                    <i class="fas fa-plus"></i>
+                    <span>Add Loan Type</span>
+                </a>
+            </div>
+        </div>
 
-                    <td class="px-6 py-4">
-                        @if($loanType->status)
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">Active</span>
-                        @else
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">Inactive</span>
-                        @endif
-                    </td>
+        {{-- Search & Filter --}}
+        <div class="px-5 sm:px-8 py-4 border-b border-slate-200 bg-slate-50/50">
+            <form method="GET" action="{{ route('loan-types.index') }}" class="flex flex-col sm:flex-row gap-3">
+                <div class="flex-1 relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-slate-400 text-sm"></i>
+                    </div>
+                    <input type="text"
+                           name="search"
+                           value="{{ request('search') }}"
+                           placeholder="Search by loan type name or slug..."
+                           class="w-full border border-slate-300 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all">
+                </div>
+                <div class="flex gap-2">
+                    <select name="status" 
+                            class="border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all bg-white">
+                        <option value="">All Status</option>
+                        <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Active</option>
+                        <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Inactive</option>
+                    </select>
+                    <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium text-sm">
+                        <i class="fas fa-filter mr-1.5"></i> Filter
+                    </button>
+                    <a href="{{ route('loan-types.index') }}" class="px-4 py-2.5 border border-slate-300 rounded-xl hover:bg-slate-50 transition text-sm flex items-center">
+                        <i class="fas fa-undo"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
 
-                    <td class="px-6 py-4">
-                        <div class="flex items-center justify-center gap-2">
-                            <a href="{{ route('loan-types.edit', $loanType->id) }}"
-                               class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-medium transition">Edit</a>
-                            <form action="{{ route('loan-types.destroy', $loanType->id) }}" method="POST" onsubmit="return confirm('Delete this loan type?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition">Delete</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="6" class="text-center py-10 text-slate-500">No Loan Types Found</td>
-                </tr>
-            @endforelse
-            </tbody>
-        </table>
+        {{-- Table --}}
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-slate-50">
+                    <tr class="text-left">
+                        <th class="px-4 sm:px-6 py-3.5 font-semibold text-slate-600 text-xs uppercase tracking-wider">#</th>
+                        <th class="px-4 sm:px-6 py-3.5 font-semibold text-slate-600 text-xs uppercase tracking-wider">Icon</th>
+                        <th class="px-4 sm:px-6 py-3.5 font-semibold text-slate-600 text-xs uppercase tracking-wider">Loan Type</th>
+                        <th class="px-4 sm:px-6 py-3.5 font-semibold text-slate-600 text-xs uppercase tracking-wider hidden md:table-cell">Description</th>
+                        <th class="px-4 sm:px-6 py-3.5 font-semibold text-slate-600 text-xs uppercase tracking-wider">Status</th>
+                        <th class="px-4 sm:px-6 py-3.5 font-semibold text-slate-600 text-xs uppercase tracking-wider text-center">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-slate-100">
+                    @forelse($loanTypes as $loanType)
+                        <tr class="hover:bg-blue-50/50 transition group">
+                            <td class="px-4 sm:px-6 py-4 text-slate-400 font-medium">
+                                {{ $loop->iteration }}
+                            </td>
+                            
+                            <td class="px-4 sm:px-6 py-4">
+                                @if($loanType->icon_path)
+                                    <img src="{{ asset('storage/' . $loanType->icon_path) }}" 
+                                         alt="Icon" 
+                                         class="w-10 h-10 object-contain bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-1.5 shadow-sm ring-1 ring-slate-200">
+                                @else
+                                    <div class="w-10 h-10 flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl text-slate-400 text-xs shadow-sm ring-1 ring-slate-200">
+                                        <i class="fas fa-image"></i>
+                                    </div>
+                                @endif
+                            </td>
+
+                            <td class="px-4 sm:px-6 py-4">
+                                <div>
+                                    <p class="font-semibold text-slate-800">{{ $loanType->name }}</p>
+                                    <p class="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
+                                        <i class="fas fa-link text-[10px]"></i>
+                                        {{ $loanType->slug }}
+                                    </p>
+                                </div>
+                            </td>
+
+                            <td class="px-4 sm:px-6 py-4 hidden md:table-cell">
+                                <p class="text-slate-600 max-w-xs truncate" title="{{ $loanType->description }}">
+                                    {{ $loanType->description ?? 'N/A' }}
+                                </p>
+                            </td>
+
+                            <td class="px-4 sm:px-6 py-4">
+                                @if($loanType->status)
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
+                                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                                        Active
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium bg-red-100 text-red-700 rounded-full">
+                                        <span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                                        Inactive
+                                    </span>
+                                @endif
+                            </td>
+
+                            <td class="px-4 sm:px-6 py-4">
+                                <div class="flex items-center justify-center gap-1.5 sm:gap-2">
+                                    <a href="{{ route('loan-types.edit', $loanType->id) }}"
+                                       class="px-3 sm:px-4 py-1.5 sm:py-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition font-medium text-xs sm:text-sm flex items-center gap-1">
+                                        <i class="fas fa-edit text-xs"></i>
+                                        <span class="hidden xs:inline">Edit</span>
+                                    </a>
+                                    <form action="{{ route('loan-types.destroy', $loanType->id) }}" 
+                                          method="POST" 
+                                          onsubmit="return confirm('Are you sure you want to delete this loan type?')"
+                                          class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" 
+                                                class="px-3 sm:px-4 py-1.5 sm:py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition font-medium text-xs sm:text-sm flex items-center gap-1">
+                                            <i class="fas fa-trash text-xs"></i>
+                                            <span class="hidden xs:inline">Delete</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center py-16">
+                                <div class="flex flex-col items-center">
+                                    <div class="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+                                        <i class="fas fa-tags text-3xl text-slate-300"></i>
+                                    </div>
+                                    <p class="text-lg font-semibold text-slate-600">No loan types found</p>
+                                    <p class="text-sm text-slate-400 mt-1">Start by adding your first loan type</p>
+                                    <a href="{{ route('loan-types.create') }}" 
+                                       class="mt-4 px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium text-sm">
+                                        <i class="fas fa-plus mr-2"></i> Add Loan Type
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        {{-- Footer with Pagination --}}
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 sm:px-8 py-4 border-t border-slate-200 bg-slate-50/50">
+            <div class="text-sm text-slate-500 text-center sm:text-left">
+                Showing {{ $loanTypes->firstItem() ?? 0 }} - {{ $loanTypes->lastItem() ?? 0 }} of {{ $loanTypes->total() }} loan types
+            </div>
+            <div>
+                {{ $loanTypes->appends(request()->query())->links() }}
+            </div>
+        </div>
+
     </div>
 
-    <div class="px-6 py-4 border-t border-slate-200">
-        {{ $loanTypes->links() }}
-    </div>
 </div>
 
-</div>
+<script>
+    // Auto-hide success message after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        const successMessage = document.querySelector('.bg-gradient-to-r\\ from-green-50');
+        if (successMessage) {
+            setTimeout(() => {
+                successMessage.style.transition = 'opacity 0.5s ease';
+                successMessage.style.opacity = '0';
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 500);
+            }, 5000);
+        }
+    });
+</script>
+
+<style>
+    /* Custom Pagination Styling */
+    .pagination {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .pagination .page-item {
+        display: inline-block;
+    }
+    .pagination .page-link {
+        padding: 6px 12px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        transition: all 0.2s ease;
+        font-size: 13px;
+        background: white;
+    }
+    .pagination .page-link:hover {
+        background: #eff6ff;
+        border-color: #3b82f6;
+        color: #3b82f6;
+    }
+    .pagination .active .page-link {
+        background: #3b82f6;
+        border-color: #3b82f6;
+        color: white;
+    }
+    .pagination .disabled .page-link {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: #f8fafc;
+    }
+
+    /* Extra small screens */
+    @media (max-width: 480px) {
+        .xs\:inline { display: inline !important; }
+        .xs\:hidden { display: none !important; }
+        .xs\:flex { display: flex !important; }
+    }
+
+    /* Touch device optimizations */
+    @media (hover: none) {
+        .hover\:shadow-lg:hover { box-shadow: none !important; }
+        .hover\:-translate-y-0\.5:hover { transform: none !important; }
+        .hover\:bg-slate-50:hover { background: inherit !important; }
+        .hover\:bg-blue-50\/50:hover { background: inherit !important; }
+    }
+
+    /* Smooth transitions */
+    .transition-all {
+        transition: all 0.2s ease;
+    }
+
+    /* Safe area support */
+    @supports (padding: max(0px)) {
+        .px-3 { 
+            padding-left: max(0.75rem, env(safe-area-inset-left)); 
+            padding-right: max(0.75rem, env(safe-area-inset-right)); 
+        }
+    }
+
+    /* Truncate text */
+    .truncate {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
+
 @endsection
