@@ -21,17 +21,15 @@ Route::prefix('admin')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard.index');
 
         Route::post('/logout', [AuthController::class, 'logout'])->name('admin.logout');
-        
+
         Route::resource('banks', BankController::class, ['as' => 'admin']);
         Route::resource('loan-types', LoanTypeController::class);
-Route::resource('lead-statuses', LeadStatusController::class);
-Route::resource('document-masters', DocumentMasterController::class);
-Route::resource('leads', LeadController::class);
+        Route::resource('lead-statuses', LeadStatusController::class);
+        Route::resource('document-masters', DocumentMasterController::class);
+        Route::resource('leads', LeadController::class);
 
-Route::post('/leads/{lead}/assign-agent', [LeadController::class, 'assignAgent'])
-    ->name('leads.assign-agent');
+        Route::post('/leads/{lead}/assign-agent', [LeadController::class, 'assignAgent'])->name('leads.assign-agent');
 
-Route::post('/leads/{lead}/update-status', [LeadController::class, 'updateStatus'])
-    ->name('leads.update-status');
+        Route::put('/leads/{lead}/update-status', [LeadController::class, 'updateStatus'])->name('leads.update-status');
     });
 });
