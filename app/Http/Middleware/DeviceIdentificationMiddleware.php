@@ -20,51 +20,44 @@ class DeviceIdentificationMiddleware
 
     public function handle(Request $request, Closure $next)
     {
-        // 1. Frontend se aane wale headers extract karein
         $rawDeviceId = $request->header('X-Device-ID');
-        $userAgent   = $request->userAgent();
-        $language    = $request->header('Accept-Language');
-        $ip          = $request->ip();
+        $userAgent = $request->userAgent();
+        $language = $request->header('Accept-Language');
+        $ip = $request->ip();
 
         $agent = new Agent();
         $agent->setUserAgent($userAgent);
 
-        // 2. Agar frontend ne Device-ID nahi bheji, toh ek fallback ID banayein
         if (empty($rawDeviceId)) {
             $deviceId = 'fb_' . hash('sha256', $userAgent . $language . $ip);
         } else {
             $deviceId = $rawDeviceId;
         }
 
-        // 3. Security Check: Kya ye device BLOCKED hai? (Cache for performance)
         $isDeviceBlocked = Cache::remember("blocked_device:{$deviceId}", 300, function () use ($deviceId) {
             return UserDevice::where('device_id', $deviceId)->where('trust_level', 'BLOCKED')->exists();
         });
 
-        // Agar blocked hai, toh turant bahar nikal do aur logout kar do
         if ($isDeviceBlocked) {
             if (auth('api')->check()) {
                 auth('api')->logout();
             }
             return response()->json([
-                'status'       => 403,
-                'message'      => 'This device is permanently blocked due to security violations.',
+                'status' => 403,
+                'message' => 'This device is permanently blocked due to security violations.',
                 'force_logout' => true
             ], 403);
         }
 
-        // 4. Agar user login nahi hai, toh aage badhne do
         if (!auth('api')->check()) {
             return $next($request);
         }
 
-        // 5. Agar user login hai, toh device ko track aur process karo
-        $user       = auth('api')->user();
+        $user = auth('api')->user();
         $appVersion = $request->header('X-App-Version', '1.0.0');
 
         $device = $this->deviceService->processDevice($user, $deviceId, $appVersion, $ip, $userAgent, $language, $agent);
 
-        // Request mein device attach kar do taaki baaki controllers use kar sakein
         $request->attributes->set('current_device', $device);
 
         return $next($request);

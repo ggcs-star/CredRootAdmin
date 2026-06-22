@@ -12,15 +12,37 @@ use Illuminate\Support\Arr;
 
 class CompanyController extends Controller
 {
-    public function show(Request $request)
+
+    public function index(Request $request)
     {
         $user_id = Auth::id();
-        $company = Company::with('members')->where('user_id', $user_id)->first();
+
+        $companies = Company::with('members')
+            ->where('user_id', $user_id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Companies fetched successfully.',
+            'data' => $companies
+        ], 200);
+    }
+
+
+    public function show($id)
+    {
+        $user_id = Auth::id();
+
+        $company = Company::with('members')
+            ->where('id', $id)
+            ->where('user_id', $user_id)
+            ->first();
 
         if (!$company) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Company profile not found.'
+                'message' => 'Company not found or unauthorized access.'
             ], 404);
         }
 
@@ -30,12 +52,136 @@ class CompanyController extends Controller
         ], 200);
     }
 
-    public function upsert(Request $request)
+
+    public function store(Request $request)
     {
         $user = Auth::user();
-        $user_id = $user->id;
 
-        $validatedData = $request->validate([
+        $validatedData = $this->validateCompanyData($request);
+
+        try {
+            DB::beginTransaction();
+
+            $companyData = Arr::except($validatedData, ['members']);
+            $companyData['user_id'] = $user->id;
+
+            $company = Company::create($companyData);
+
+            if (isset($validatedData['members']) && is_array($validatedData['members'])) {
+                $this->insertMembers($company->id, $validatedData['members']);
+            }
+
+            if ($user->current_step < 3) {
+                $user->update(['current_step' => 3]);
+            }
+
+            DB::commit();
+            $company->load('members');
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Company created successfully.',
+                'data' => [
+                    'company' => $company,
+                    'current_step' => $user->current_step
+                ]
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong while creating company.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function update(Request $request, $id)
+    {
+        $user_id = Auth::id();
+
+        $company = Company::where('id', $id)->where('user_id', $user_id)->first();
+
+        if (!$company) {
+            return response()->json(['status' => 'error', 'message' => 'Company not found or unauthorized.'], 404);
+        }
+
+        $validatedData = $this->validateCompanyData($request);
+
+        try {
+            DB::beginTransaction();
+
+            $companyData = Arr::except($validatedData, ['members']);
+
+            $company->update($companyData);
+
+            if (isset($validatedData['members']) && is_array($validatedData['members'])) {
+                $company->members()->delete();
+                $this->insertMembers($company->id, $validatedData['members']);
+            }
+
+            DB::commit();
+            $company->load('members');
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Company updated successfully.',
+                'data' => [
+                    'company' => $company
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong while updating company.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function destroy($id)
+    {
+        $user_id = Auth::id();
+
+        $company = Company::where('id', $id)->where('user_id', $user_id)->first();
+
+        if (!$company) {
+            return response()->json(['status' => 'error', 'message' => 'Company not found or unauthorized.'], 404);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $company->members()->delete();
+            $company->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Company deleted successfully.'
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete company.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+
+    private function validateCompanyData(Request $request)
+    {
+        return $request->validate([
             'company_name' => 'required|string|max:255',
             'entity_type' => 'required|string|in:Proprietorship,Partnership,LLP,Pvt Ltd',
             'industry_type' => 'nullable|string|in:Trading,Manufacturing,Service',
@@ -59,55 +205,17 @@ class CompanyController extends Controller
             'members.*.mobile' => 'required_with:members|string|max:15',
             'members.*.ownership_percentage' => 'nullable|numeric|min:0|max:100',
         ]);
+    }
 
-        try {
-            DB::beginTransaction();
+    private function insertMembers($companyId, $membersArray)
+    {
+        $membersData = array_map(function ($member) use ($companyId) {
+            $member['company_id'] = $companyId;
+            $member['created_at'] = now();
+            $member['updated_at'] = now();
+            return $member;
+        }, $membersArray);
 
-            $companyData = Arr::except($validatedData, ['members']);
-
-            $company = Company::updateOrCreate(
-                ['user_id' => $user_id],
-                $companyData
-            );
-
-            if (isset($validatedData['members']) && is_array($validatedData['members'])) {
-                $company->members()->delete();
-
-                $membersData = array_map(function ($member) use ($company) {
-                    $member['company_id'] = $company->id;
-                    $member['created_at'] = now();
-                    $member['updated_at'] = now();
-                    return $member;
-                }, $validatedData['members']);
-
-                CompanyMember::insert($membersData);
-            }
-
-            if ($user->current_step < 3) {
-                $user->update(['current_step' => 3]);
-            }
-
-            DB::commit();
-
-            $company->load('members');
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Company and members details saved successfully.',
-                'data' => [
-                    'company' => $company,
-                    'current_step' => $user->current_step
-                ]
-            ], 200);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Something went wrong while saving details.',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        CompanyMember::insert($membersData);
     }
 }

@@ -223,14 +223,7 @@
                                    class="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition text-xs font-medium">
                                     <i class="fas fa-eye mr-1"></i> View
                                 </a>
-                                <a href="{{ route('leads.edit', $lead->id) }}"
-                                   class="px-3 py-1.5 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition text-xs font-medium">
-                                    <i class="fas fa-edit mr-1"></i>
-                                </a>
-                                <button onclick="deleteLead({{ $lead->id }})"
-                                        class="px-3 py-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition text-xs font-medium">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                
                             </div>
                         </td>
                     </tr>

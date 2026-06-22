@@ -23,20 +23,17 @@ Route::middleware(['auth:api', 'role:user'])->group(function () {
     Route::post('/user/profile', [UserProfileController::class, 'upsert']);
     Route::get('/user/profile', [UserProfileController::class, 'show']);
 
-    Route::get('/user/company', [CompanyController::class, 'show']);
-    Route::post('/user/company', [CompanyController::class, 'upsert']);
+    Route::apiResource('company', CompanyController::class);
 
-    Route::get('/user/company/banks', [CompanyBankAccountController::class, 'show']);
-    Route::post('/user/company/banks', [CompanyBankAccountController::class, 'store']);
-    Route::delete('/user/company/banks/{id}', [CompanyBankAccountController::class, 'destroy']);
+    Route::apiResource('bank-accounts', CompanyBankAccountController::class);
 
     Route::get('/master/entity-types', [MasterDataController::class, 'getEntityTypes']);
     Route::get('/master/loan-types', [MasterDataController::class, 'getLoanTypes']);
-    Route::get('/master/documents', [MasterDataController::class, 'getRequiredDocuments']);
+    Route::get('/master/documents', [MasterDataController::class, 'getDashboardDocumentStatus']);
     Route::get('/master/banks', [MasterDataController::class, 'getActiveBanks']);
 
-    Route::get('/lead/show', [LeadController::class, 'show']);
-    Route::post('/user/loan/apply', [LeadController::class, 'applyForLoan']);
+    Route::apiResource('leads', LeadController::class);
+    
     Route::post('/documents/upload', [DocumentController::class, 'upload']);
     Route::post('/documents/finalize', [DocumentController::class, 'finalizeUploads']);
 });
