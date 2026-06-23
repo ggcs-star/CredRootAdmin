@@ -184,33 +184,45 @@
                             ₹{{ number_format($lead->loan_amount) }}
                         </td>
                         <td class="py-3 px-4">
-                            @php
-                                $statusColor = match($lead->status->name ?? '') {
-                                    'New' => 'blue',
-                                    'In Progress' => 'yellow',
-                                    'Converted' => 'green',
-                                    'Lost' => 'red',
-                                    'Rejected' => 'red',
-                                    'Approved' => 'green',
-                                    default => 'gray'
-                                };
-                            @endphp
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium
-                                @if($statusColor == 'blue') bg-blue-100 text-blue-700
-                                @elseif($statusColor == 'yellow') bg-yellow-100 text-yellow-700
-                                @elseif($statusColor == 'green') bg-green-100 text-green-700
-                                @elseif($statusColor == 'red') bg-red-100 text-red-700
-                                @else bg-slate-100 text-slate-700 @endif">
-                                <span class="w-1.5 h-1.5 rounded-full
-                                    @if($statusColor == 'blue') bg-blue-500
-                                    @elseif($statusColor == 'yellow') bg-yellow-500
-                                    @elseif($statusColor == 'green') bg-green-500
-                                    @elseif($statusColor == 'red') bg-red-500
-                                    @else bg-slate-500 @endif">
-                                </span>
-                                {{ $lead->status->name ?? 'Unknown' }}
-                            </span>
-                        </td>
+    <form action="{{ route('leads.update-status', $lead->id) }}" method="POST" class="m-0">
+        @csrf
+        @method('PUT')
+        
+        @php
+            // Database se color lo, agar null ho to default gray color (#64748b) set karo
+            $hexColor = $lead->status->color ?? '#64748b';
+            
+            // Background ke liye hex color ke peeche '1A' laga kar 10% opacity bana di
+            $bgColor = $hexColor . '1A'; 
+        @endphp
+
+        <div class="relative inline-block w-full max-w-[180px]">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full pointer-events-none"
+                  style="background-color: {{ $hexColor }};"></span>
+
+            <select name="status_id"
+                    onchange="this.form.submit()"
+                    class="w-full pl-7 pr-8 py-1.5 rounded-full text-xs font-bold cursor-pointer appearance-none border-0 transition-all outline-none focus:ring-2 focus:ring-offset-1"
+                    style="background-color: {{ $bgColor }}; color: {{ $hexColor }}; box-shadow: 0 0 0 1px {{ $bgColor }};">
+                
+                @foreach($allStatuses as $status)
+                    <option value="{{ $status->id }}"
+                            {{ $lead->status_id == $status->id ? 'selected' : '' }}
+                            class="text-slate-700 bg-white font-medium">
+                        {{ $status->name }}
+                    </option>
+                @endforeach
+
+            </select>
+
+            <div class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                <svg class="w-3 h-3" style="color: {{ $hexColor }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </div>
+        </div>
+    </form>
+</td>
                         <td class="py-3 px-4 text-slate-500 text-xs">
                             <div class="flex flex-col">
                                 <span>{{ $lead->created_at->format('d M Y') }}</span>
@@ -233,9 +245,7 @@
                             <i class="fas fa-inbox text-4xl block mb-3 opacity-20"></i>
                             <p class="text-lg font-medium text-slate-600">No leads found</p>
                             <p class="text-sm mt-1">Try adjusting your search or filters</p>
-                            <a href="{{ route('leads.create') }}" class="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                                <i class="fas fa-plus mr-2"></i> Create your first lead
-                            </a>
+                           
                         </td>
                     </tr>
                     @endforelse
