@@ -29,7 +29,7 @@ class DeviceIdentificationMiddleware
         $agent->setUserAgent($userAgent);
 
         if (empty($rawDeviceId)) {
-            $deviceId = 'fb_' . hash('sha256', $userAgent . $language . $ip);
+            $deviceId = 'fb_' . hash('sha256', $userAgent . $language);
         } else {
             $deviceId = $rawDeviceId;
         }

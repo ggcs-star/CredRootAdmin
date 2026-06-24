@@ -22,18 +22,15 @@ class DeviceIdentificationService
 
         $context = $this->analyzeDeviceContext($agent, $userAgent);
 
-        // Agar user login nahi hai (Guest)
         if (!$userId) {
             return $this->buildTempDevice($deviceId, $userAgent, $appVersion, $ip, $isFallback, $language, $context);
         }
 
-        // User logged in hai, device dhundo ya naya banao
         $device = UserDevice::firstOrNew([
             'user_id' => $userId,
             'device_id' => $deviceId,
         ]);
 
-        // Agar device already blocked hai, toh aage processing mat karo
         if ($device->exists && $device->trust_level === self::TRUST_BLOCKED) {
             return $device;
         }
@@ -41,13 +38,11 @@ class DeviceIdentificationService
         $needsDbUpdate = false;
         $ipChanged = $device->last_ip_address !== $ip;
 
-        // Agar naya device hai ya browser change hua hai, toh characteristics update karo
         if (!$device->exists || $device->user_agent !== $userAgent) {
             $this->updateDeviceCharacteristics($device, $userAgent, $deviceId, $isFallback, $context, $language);
             $needsDbUpdate = true;
         }
 
-        // App version aur language track karo
         if ($device->app_version !== $appVersion) {
             $device->app_version = $appVersion;
             $needsDbUpdate = true;
@@ -58,7 +53,6 @@ class DeviceIdentificationService
             $needsDbUpdate = true;
         }
 
-        // Trust Level Upgrade Logic (Agar 7 din purana hai aur 3 baar login kar chuka hai)
         if ($device->exists && $device->trust_level === self::TRUST_VERIFIED && $device->login_count >= 3) {
             $daysOld = Carbon::parse($device->created_at)->diffInDays(now());
             if ($daysOld >= 7) {
@@ -68,13 +62,11 @@ class DeviceIdentificationService
             }
         }
 
-        // IP Address update
         if ($ipChanged || !$device->exists) {
             $device->last_ip_address = $ip;
             $needsDbUpdate = true;
         }
 
-        // Active status update (Har 5 minute mein ek hi baar DB hit karega)
         if (!$device->last_active_at || $device->last_active_at->diffInMinutes(now()) >= 5) {
             $device->last_active_at = now();
             $needsDbUpdate = true;
@@ -84,7 +76,6 @@ class DeviceIdentificationService
             $device->save();
         }
 
-        // Background GeoIP Job Dispatch
         if ($ipChanged && $device->id) {
             ProcessDeviceLocationJob::dispatch($device->id, $ip);
         }
@@ -166,7 +157,6 @@ class DeviceIdentificationService
     private function buildTempDevice(string $deviceId, ?string $userAgent, string $appVersion, string $ip, bool $isFallback, ?string $language, array $context): UserDevice
     {
         $device = new UserDevice();
-        // ... Set temp properties for unauthenticated users ...
         $device->device_id = $deviceId;
         $device->last_ip_address = $ip;
         $device->trust_level = self::TRUST_NEW;
