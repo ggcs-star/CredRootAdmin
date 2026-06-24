@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class LeadStatus extends Model {
     use HasFactory;
     
-    // Core Status Codes yahan define kar dein
     public const STATUS_NEW = 'NEW';
     public const STATUS_BANK_PROCESSING = 'BANK_PROCESSING';
     

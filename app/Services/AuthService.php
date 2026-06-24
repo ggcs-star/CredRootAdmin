@@ -324,22 +324,6 @@ class AuthService
 
     private function buildLoginResponse($user, $device, $token, $refreshToken, $message, $code): array
     {
-        $onboardingData = null;
-
-        if ($user->current_step < 6) {
-            $profile = \App\Models\UserProfile::where('user_id', $user->id)->first();
-            $company = \App\Models\Company::with('members')->where('user_id', $user->id)->first();
-            $bankAccounts = $company ? \App\Models\CompanyBankAccount::where('company_id', $company->id)->get() : [];
-            $activeLead = \App\Models\Lead::where('user_id', $user->id)->latest()->first();
-
-            $onboardingData = [
-                'profile' => $profile,
-                'company' => $company,
-                'bank_accounts' => $bankAccounts,
-                'active_lead' => $activeLead,
-            ];
-        }
-
         return [
             'success' => true,
             'code' => $code,
@@ -358,8 +342,7 @@ class AuthService
             'device_info' => [
                 'id' => $device->id,
                 'trust_level' => $device->trust_level,
-            ],
-            'onboarding_data' => $onboardingData
+            ]
         ];
     }
     public function getActiveSessions(User $user): array

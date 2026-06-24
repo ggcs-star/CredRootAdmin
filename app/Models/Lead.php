@@ -13,6 +13,7 @@ class Lead extends Model
         'lead_number',
         'user_id',
         'company_id',
+        'company_bank_account_id', 
         'loan_type_id',
         'loan_amount',
 
@@ -21,7 +22,7 @@ class Lead extends Model
         'pre_approved_min_amount',
         'pre_approved_max_amount',
         'is_pre_qualified',
-
+        
         'status_id',
         'assigned_to'
     ];
@@ -45,7 +46,6 @@ class Lead extends Model
         });
     }
 
-   
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -54,6 +54,12 @@ class Lead extends Model
     public function company()
     {
         return $this->belongsTo(Company::class);
+    }
+
+ 
+    public function bankAccount()
+    {
+        return $this->belongsTo(CompanyBankAccount::class, 'company_bank_account_id');
     }
 
     public function status()
@@ -75,9 +81,9 @@ class Lead extends Model
     {
         return $this->hasMany(LoanApplication::class);
     }
+    
     public function loanType()
     {
         return $this->belongsTo(LoanType::class, 'loan_type_id');
     }
-
 }

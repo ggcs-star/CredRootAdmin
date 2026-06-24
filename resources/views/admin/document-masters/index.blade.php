@@ -113,23 +113,21 @@
                            class="w-full border border-slate-300 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all">
                 </div>
                 <div class="flex flex-wrap gap-2">
-                    <select name="status" 
-                            class="border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white">
+                    <select name="level" class="border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white">
+                        <option value="">All Levels</option>
+                        <option value="user" {{ request('level') == 'user' ? 'selected' : '' }}>User Profile</option>
+                        <option value="company" {{ request('level') == 'company' ? 'selected' : '' }}>Company</option>
+                        <option value="lead" {{ request('level') == 'lead' ? 'selected' : '' }}>Loan (Lead)</option>
+                    </select>
+                    <select name="status" class="border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white">
                         <option value="">All Status</option>
                         <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Active</option>
                         <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Inactive</option>
                     </select>
-                    <select name="mandatory" 
-                            class="border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white">
+                    <select name="mandatory" class="border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white">
                         <option value="">All Types</option>
                         <option value="1" {{ request('mandatory') == '1' ? 'selected' : '' }}>Mandatory</option>
                         <option value="0" {{ request('mandatory') == '0' ? 'selected' : '' }}>Optional</option>
-                    </select>
-                    <select name="stage" 
-                            class="border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white">
-                        <option value="">All Stages</option>
-                        <option value="pre_qualification" {{ request('stage') == 'pre_qualification' ? 'selected' : '' }}>Pre Qualification</option>
-                        <option value="final_application" {{ request('stage') == 'final_application' ? 'selected' : '' }}>Final Application</option>
                     </select>
                     <button type="submit" class="px-5 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition font-medium text-sm">
                         <i class="fas fa-filter mr-1.5"></i> Filter
@@ -147,9 +145,9 @@
                 <thead class="bg-slate-50">
                     <tr class="text-left">
                         <th class="px-4 sm:px-6 py-3.5 font-semibold text-slate-600 text-xs uppercase tracking-wider">Code / Name</th>
-                        <th class="px-4 sm:px-6 py-3.5 font-semibold text-slate-600 text-xs uppercase tracking-wider hidden md:table-cell">Applicable Entities</th>
+                        <th class="px-4 sm:px-6 py-3.5 font-semibold text-slate-600 text-xs uppercase tracking-wider hidden sm:table-cell">Level</th>
+                        <th class="px-4 sm:px-6 py-3.5 font-semibold text-slate-600 text-xs uppercase tracking-wider hidden md:table-cell">Entities</th>
                         <th class="px-4 sm:px-6 py-3.5 font-semibold text-slate-600 text-xs uppercase tracking-wider">Stage</th>
-                        <th class="px-4 sm:px-6 py-3.5 font-semibold text-slate-600 text-xs uppercase tracking-wider text-center hidden sm:table-cell">Sides</th>
                         <th class="px-4 sm:px-6 py-3.5 font-semibold text-slate-600 text-xs uppercase tracking-wider text-center">Mandatory</th>
                         <th class="px-4 sm:px-6 py-3.5 font-semibold text-slate-600 text-xs uppercase tracking-wider text-center">Status</th>
                         <th class="px-4 sm:px-6 py-3.5 font-semibold text-slate-600 text-xs uppercase tracking-wider text-center">Actions</th>
@@ -169,10 +167,25 @@
                                 </div>
                             </td>
 
+                            <td class="px-4 sm:px-6 py-4 hidden sm:table-cell">
+                                @if($document->document_level == 'user')
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-cyan-100 text-cyan-700 text-xs rounded-full font-medium">
+                                        <i class="fas fa-user text-[10px]"></i> User Profile
+                                    </span>
+                                @elseif($document->document_level == 'company')
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-fuchsia-100 text-fuchsia-700 text-xs rounded-full font-medium">
+                                        <i class="fas fa-building text-[10px]"></i> Company
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
+                                        <i class="fas fa-file-invoice-dollar text-[10px]"></i> Loan/Lead
+                                    </span>
+                                @endif
+                            </td>
+
                             <td class="px-4 sm:px-6 py-4 hidden md:table-cell">
                                 @if(empty($document->applicable_entities) || count($document->applicable_entities) == 0)
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-purple-100 text-purple-700 text-xs rounded-full font-medium border border-purple-200">
-                                        <i class="fas fa-globe text-[10px]"></i>
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 text-slate-700 text-xs rounded-full font-medium">
                                         Global (All)
                                     </span>
                                 @else
@@ -186,27 +199,18 @@
 
                             <td class="px-4 sm:px-6 py-4">
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-full font-medium
-                                    {{ $document->collection_stage == 'pre_qualification' ? 'bg-blue-100 text-blue-700 border border-blue-200' : 'bg-amber-100 text-amber-700 border border-amber-200' }}">
-                                    <i class="fas {{ $document->collection_stage == 'pre_qualification' ? 'fa-search' : 'fa-file-signature' }} text-[10px]"></i>
+                                    {{ $document->collection_stage == 'pre_qualification' ? 'bg-indigo-100 text-indigo-700' : 'bg-amber-100 text-amber-700' }}">
                                     {{ $document->collection_stage == 'pre_qualification' ? 'Pre Qual' : 'Final App' }}
-                                </span>
-                            </td>
-
-                            <td class="px-4 sm:px-6 py-4 text-center hidden sm:table-cell">
-                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 text-slate-600 font-bold text-sm">
-                                    {{ $document->sides_required }}
                                 </span>
                             </td>
 
                             <td class="px-4 sm:px-6 py-4 text-center">
                                 @if($document->is_mandatory)
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium border border-green-200">
-                                        <i class="fas fa-check-circle text-[10px]"></i>
-                                        Yes
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">
+                                        <i class="fas fa-check-circle text-[10px]"></i> Yes
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 text-slate-500 text-xs rounded-full font-medium border border-slate-200">
-                                        <i class="fas fa-circle text-[10px]"></i>
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 text-slate-500 text-xs rounded-full font-medium">
                                         No
                                     </span>
                                 @endif
@@ -214,14 +218,12 @@
 
                             <td class="px-4 sm:px-6 py-4 text-center">
                                 @if($document->status)
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium border border-green-200">
-                                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                                        Active
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">
+                                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Active
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-100 text-red-700 text-xs rounded-full font-medium border border-red-200">
-                                        <span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
-                                        Inactive
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-100 text-red-700 text-xs rounded-full font-medium">
+                                        <span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span> Inactive
                                     </span>
                                 @endif
                             </td>
@@ -229,20 +231,14 @@
                             <td class="px-4 sm:px-6 py-4">
                                 <div class="flex items-center justify-center gap-1.5 sm:gap-2">
                                     <a href="{{ route('document-masters.edit', $document->id) }}"
-                                       class="px-3 sm:px-4 py-1.5 sm:py-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition font-medium text-xs sm:text-sm flex items-center gap-1">
-                                        <i class="fas fa-edit text-xs"></i>
-                                        <span class="hidden xs:inline">Edit</span>
+                                       class="px-3 py-1.5 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition font-medium text-xs flex items-center gap-1">
+                                        <i class="fas fa-edit"></i> Edit
                                     </a>
-                                    <form action="{{ route('document-masters.destroy', $document->id) }}" 
-                                          method="POST" 
-                                          onsubmit="return confirm('Are you sure you want to delete this document?')"
-                                          class="inline">
+                                    <form action="{{ route('document-masters.destroy', $document->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this document?')" class="inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" 
-                                                class="px-3 sm:px-4 py-1.5 sm:py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition font-medium text-xs sm:text-sm flex items-center gap-1">
-                                            <i class="fas fa-trash text-xs"></i>
-                                            <span class="hidden xs:inline">Delete</span>
+                                        <button type="submit" class="px-3 py-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition font-medium text-xs flex items-center gap-1">
+                                            <i class="fas fa-trash"></i> Delete
                                         </button>
                                     </form>
                                 </div>
@@ -251,17 +247,7 @@
                     @empty
                         <tr>
                             <td colspan="7" class="text-center py-16">
-                                <div class="flex flex-col items-center">
-                                    <div class="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                                        <i class="fas fa-file-alt text-3xl text-slate-300"></i>
-                                    </div>
-                                    <p class="text-lg font-semibold text-slate-600">No documents found</p>
-                                    <p class="text-sm text-slate-400 mt-1">Start by adding your first document</p>
-                                    <a href="{{ route('document-masters.create') }}" 
-                                       class="mt-4 px-6 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition font-medium text-sm">
-                                        <i class="fas fa-plus mr-2"></i> Add Document
-                                    </a>
-                                </div>
+                                <p class="text-lg font-semibold text-slate-600">No documents found</p>
                             </td>
                         </tr>
                     @endforelse
@@ -270,98 +256,9 @@
         </div>
 
         {{-- Footer with Pagination --}}
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 sm:px-8 py-4 border-t border-slate-200 bg-slate-50/50">
-            <div class="text-sm text-slate-500 text-center sm:text-left">
-                Showing {{ $documents->firstItem() ?? 0 }} - {{ $documents->lastItem() ?? 0 }} of {{ $documents->total() }} documents
-            </div>
-            <div>
-                {{ $documents->appends(request()->query())->links() }}
-            </div>
+        <div class="px-5 py-4 border-t border-slate-200 bg-slate-50/50">
+            {{ $documents->appends(request()->query())->links() }}
         </div>
-
     </div>
-
 </div>
-
-<script>
-    // Auto-hide success message after 5 seconds
-    document.addEventListener('DOMContentLoaded', function() {
-        const successMessage = document.querySelector('.bg-gradient-to-r\\ from-green-50');
-        if (successMessage) {
-            setTimeout(() => {
-                successMessage.style.transition = 'opacity 0.5s ease';
-                successMessage.style.opacity = '0';
-                setTimeout(() => {
-                    successMessage.style.display = 'none';
-                }, 500);
-            }, 5000);
-        }
-    });
-</script>
-
-<style>
-    /* Custom Pagination Styling */
-    .pagination {
-        display: flex;
-        gap: 4px;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    .pagination .page-item {
-        display: inline-block;
-    }
-    .pagination .page-link {
-        padding: 6px 12px;
-        border-radius: 8px;
-        border: 1px solid #e2e8f0;
-        color: #475569;
-        transition: all 0.2s ease;
-        font-size: 13px;
-        background: white;
-    }
-    .pagination .page-link:hover {
-        background: #eef2ff;
-        border-color: #6366f1;
-        color: #6366f1;
-    }
-    .pagination .active .page-link {
-        background: #6366f1;
-        border-color: #6366f1;
-        color: white;
-    }
-    .pagination .disabled .page-link {
-        opacity: 0.5;
-        cursor: not-allowed;
-        background: #f8fafc;
-    }
-
-    /* Extra small screens */
-    @media (max-width: 480px) {
-        .xs\:inline { display: inline !important; }
-        .xs\:hidden { display: none !important; }
-        .xs\:flex { display: flex !important; }
-    }
-
-    /* Touch device optimizations */
-    @media (hover: none) {
-        .hover\:shadow-lg:hover { box-shadow: none !important; }
-        .hover\:-translate-y-0\.5:hover { transform: none !important; }
-        .hover\:bg-slate-50:hover { background: inherit !important; }
-        .hover\:bg-indigo-50\/50:hover { background: inherit !important; }
-    }
-
-    /* Smooth transitions */
-    .transition-all {
-        transition: all 0.2s ease;
-    }
-
-    /* Safe area support */
-    @supports (padding: max(0px)) {
-        .px-3 { 
-            padding-left: max(0.75rem, env(safe-area-inset-left)); 
-            padding-right: max(0.75rem, env(safe-area-inset-right)); 
-        }
-    }
-</style>
-
 @endsection

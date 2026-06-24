@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class UserProfileController extends Controller
 {
-   public function show(Request $request)
+    public function show(Request $request)
     {
         $user = Auth::user();
 
