@@ -19,7 +19,7 @@ Route::middleware(['auth:api', 'role:user'])->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/active-sessions', [AuthController::class, 'activeSessions']);
-    
+
     Route::post('/user/profile', [UserProfileController::class, 'upsert']);
     Route::get('/user/profile', [UserProfileController::class, 'show']);
 
@@ -33,7 +33,7 @@ Route::middleware(['auth:api', 'role:user'])->group(function () {
     Route::get('/master/banks', [MasterDataController::class, 'getActiveBanks']);
 
     Route::apiResource('leads', LeadController::class);
-    
+
     Route::post('/documents/upload', [DocumentController::class, 'upload']);
     Route::post('/documents/finalize', [DocumentController::class, 'finalizeUploads']);
 });
