@@ -88,7 +88,7 @@
         <a href="{{ route('lead-statuses.index') }}"
            class="sidebar-link">
             <i class="fas fa-stream"></i>
-            <span>Lead Statuses</span>
+            <span>Lead Status</span>
         </a>
 
         <a href="{{ route('document-masters.index') }}"

@@ -46,6 +46,7 @@ class SecurityRiskService
         if ($currentLat && $currentLon && $device->lat && $device->lon && $device->last_login_at) {
             $isImpossible = $this->checkImpossibleTravel(
                 $device->lat,
+                
                 $device->lon,
                 $currentLat,
                 $currentLon,
