@@ -423,4 +423,35 @@ class AuthService
 
         return ['success' => true, 'code' => 200, 'message' => 'Logged out successfully.'];
     }
+    public function resendOtp(string $email): array
+    {
+        $registerData = Cache::get('register_' . $email);
+        $loginData = Cache::get('login_otp_' . $email);
+
+        if (!$registerData && !$loginData) {
+            return [
+                'success' => false, 
+                'code' => 400, 
+                'message' => 'Session expired. Please restart the process (Login or Register again).'
+            ];
+        }
+
+        $newOtp = rand(100000, 999999);
+
+        if ($registerData) {
+            $registerData['otp'] = $newOtp;
+            Cache::put('register_' . $email, $registerData, now()->addMinutes(10));
+        } elseif ($loginData) {
+            $loginData['otp'] = $newOtp;
+            Cache::put('login_otp_' . $email, $loginData, now()->addMinutes(10));
+        }
+
+        Mail::to($email)->send(new OtpMail($newOtp));
+
+        return [
+            'success' => true, 
+            'code' => 200, 
+            'message' => 'A new OTP has been sent to your email.'
+        ];
+    }
 }

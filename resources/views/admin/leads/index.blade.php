@@ -46,7 +46,7 @@
             </div>
             <div class="w-48">
                 <select name="status" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition">
-                    <option value="">All Statuses</option>
+                    <option value="">All Status</option>
                     @foreach($statuses ?? [] as $status)
                         <option value="{{ $status->id }}" {{ request('status') == $status->id ? 'selected' : '' }}>
                             {{ $status->name }}

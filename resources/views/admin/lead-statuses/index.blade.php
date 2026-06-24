@@ -1,8 +1,8 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Lead Statuses')
-@section('page-title', 'Lead Statuses')
-@section('page-subtitle', 'Manage lead workflow statuses')
+@section('title', 'Lead Status')
+@section('page-title', 'Lead Status')
+@section('page-subtitle', 'Manage lead workflow status')
 
 @section('content')
 
@@ -13,7 +13,7 @@
         <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs text-slate-400 uppercase tracking-wider">Total Statuses</p>
+                    <p class="text-xs text-slate-400 uppercase tracking-wider">Total Status</p>
                     <p class="text-2xl font-bold text-slate-800">{{ $statuses->total() }}</p>
                 </div>
                 <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
@@ -92,7 +92,7 @@
                     <span class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
                         <i class="fas fa-tasks text-base sm:text-lg"></i>
                     </span>
-                    <span>Lead Statuses</span>
+                    <span>Lead Status</span>
                 </h2>
                 <p class="text-sm text-slate-500 mt-1 ml-0 sm:ml-14">
                     <i class="fas fa-info-circle text-indigo-400 mr-1"></i>
@@ -129,7 +129,7 @@
                 <div class="flex gap-2">
                     <select name="locked" 
                             class="border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white">
-                        <option value="">All Statuses</option>
+                        <option value="">All Status</option>
                         <option value="1" {{ request('locked') == '1' ? 'selected' : '' }}>System Locked</option>
                         <option value="0" {{ request('locked') == '0' ? 'selected' : '' }}>Active Pipeline</option>
                     </select>
@@ -244,7 +244,7 @@
                                     <div class="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mb-4">
                                         <i class="fas fa-tasks text-3xl text-slate-300"></i>
                                     </div>
-                                    <p class="text-lg font-semibold text-slate-600">No lead statuses found</p>
+                                    <p class="text-lg font-semibold text-slate-600">No lead status found</p>
                                     <p class="text-sm text-slate-400 mt-1">Start by adding your first status</p>
                                     <a href="{{ route('lead-statuses.create') }}" 
                                        class="mt-4 px-6 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition font-medium text-sm">
