@@ -294,7 +294,7 @@ class AuthService
         $agent->setUserAgent($userAgent);
 
         $rawDeviceId = $request->header('X-Device-ID');
-        $deviceId = $rawDeviceId ?: 'fb_' . hash('sha256', $userAgent . $language . $ip);
+        $deviceId = $rawDeviceId ?: 'fb_' . hash('sha256', $userAgent . $language);
 
         return [
             'userAgent' => $userAgent,
