@@ -14,7 +14,6 @@ class DocumentMasterController extends Controller
     {
         $query = DocumentMaster::latest();
 
-        // Search & Filter Logic
         if ($request->has('search') && $request->search != '') {
             $query->where(function($q) use ($request) {
                 $q->where('name', 'like', '%'.$request->search.'%')
@@ -46,37 +45,57 @@ class DocumentMasterController extends Controller
         return view('admin.document-masters.create', compact('loanTypes', 'entityTypes'));
     }
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'document_code' => 'required|string|max:255|unique:document_masters,document_code',
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'document_level' => 'required|in:user,company,lead', // Added validation
-            'applicable_entities' => 'nullable|array',
-            'applicable_loan_types' => 'nullable|array',
-            'sides_required' => 'required|integer|min:0',
-            'allowed_formats' => 'required|string|max:255',
-            'max_size_kb' => 'required|integer|min:1',
-            'sample_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'collection_stage' => 'required|in:pre_qualification,final_application',
-            'is_mandatory' => 'required|boolean',
-            'status' => 'required|boolean',
-        ]);
+   public function store(Request $request)
+{
+    $rules = [
+        'document_code' => 'required|string|max:255|unique:document_masters,document_code',
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'document_level' => 'required|in:user,company,lead',
+        'sides_required' => 'required|integer|min:1|max:2',
+        'allowed_formats' => 'required|string|max:255',
+        'max_size_kb' => 'required|integer|min:1',
+        'sample_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        'collection_stage' => 'required|in:pre_qualification,final_application',
+        'is_mandatory' => 'required|boolean',
+        'status' => 'required|boolean',
+    ];
 
-        $data = $validated;
-        $data['applicable_entities'] = $request->applicable_entities ?: null;
-        $data['applicable_loan_types'] = $request->applicable_loan_types ?: null;
-
-        if ($request->hasFile('sample_image')) {
-            $data['sample_image_url'] = $request->file('sample_image')->store('document_samples', 'public');
-        }
-
-        DocumentMaster::create($data);
-
-        return redirect()->route('document-masters.index')
-            ->with('success', 'Document Master created successfully.');
+    if ($request->document_level === 'company') {
+        $rules['applicable_entities'] = 'required|array|min:1';
     }
+
+    if ($request->document_level === 'lead') {
+        $rules['applicable_entities'] = 'nullable|array';
+        $rules['applicable_loan_types'] = 'nullable|array';
+    }
+
+    $validated = $request->validate($rules);
+
+    $data = $validated;
+
+    if ($request->document_level === 'user') {
+        $data['applicable_entities'] = null;
+        $data['applicable_loan_types'] = null;
+    } elseif ($request->document_level === 'company') {
+        $data['applicable_entities'] = $request->input('applicable_entities');
+        $data['applicable_loan_types'] = null;
+    } else {
+        $data['applicable_entities'] = $request->input('applicable_entities');
+        $data['applicable_loan_types'] = $request->input('applicable_loan_types');
+    }
+
+    if ($request->hasFile('sample_image')) {
+        $data['sample_image_url'] = $request->file('sample_image')
+            ->store('document_samples', 'public');
+    }
+
+    DocumentMaster::create($data);
+
+    return redirect()
+        ->route('document-masters.index')
+        ->with('success', 'Document Master created successfully.');
+}
 
     public function edit(DocumentMaster $documentMaster)
     {
@@ -86,40 +105,63 @@ class DocumentMasterController extends Controller
         return view('admin.document-masters.edit', compact('documentMaster', 'loanTypes', 'entityTypes'));
     }
 
-    public function update(Request $request, DocumentMaster $documentMaster)
-    {
-        $validated = $request->validate([
-            'document_code' => 'required|string|max:255|unique:document_masters,document_code,' . $documentMaster->id,
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'document_level' => 'required|in:user,company,lead', // Added validation
-            'applicable_entities' => 'nullable|array',
-            'applicable_loan_types' => 'nullable|array',
-            'sides_required' => 'required|integer|min:0',
-            'allowed_formats' => 'required|string|max:255',
-            'max_size_kb' => 'required|integer|min:1',
-            'sample_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'collection_stage' => 'required|in:pre_qualification,final_application',
-            'is_mandatory' => 'required|boolean',
-            'status' => 'required|boolean',
-        ]);
+   public function update(Request $request, DocumentMaster $documentMaster)
+{
+    $rules = [
+        'document_code' => 'required|string|max:255|unique:document_masters,document_code,' . $documentMaster->id,
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'document_level' => 'required|in:user,company,lead',
+        'sides_required' => 'required|integer|min:1|max:2',
+        'allowed_formats' => 'required|string|max:255',
+        'max_size_kb' => 'required|integer|min:1',
+        'sample_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        'collection_stage' => 'required|in:pre_qualification,final_application',
+        'is_mandatory' => 'required|boolean',
+        'status' => 'required|boolean',
+    ];
 
-        $data = $validated;
-        $data['applicable_entities'] = $request->applicable_entities ?: null;
-        $data['applicable_loan_types'] = $request->applicable_loan_types ?: null;
+    if ($request->document_level === 'company') {
+        $rules['applicable_entities'] = 'required|array|min:1';
+    }
 
-        if ($request->hasFile('sample_image')) {
-            if ($documentMaster->sample_image_url) {
-                Storage::disk('public')->delete($documentMaster->sample_image_url);
-            }
-            $data['sample_image_url'] = $request->file('sample_image')->store('document_samples', 'public');
+    if ($request->document_level === 'lead') {
+        $rules['applicable_entities'] = 'nullable|array';
+        $rules['applicable_loan_types'] = 'nullable|array';
+    }
+
+    $validated = $request->validate($rules);
+
+    $data = $validated;
+
+    if ($request->document_level === 'user') {
+        $data['applicable_entities'] = null;
+        $data['applicable_loan_types'] = null;
+    } elseif ($request->document_level === 'company') {
+        $data['applicable_entities'] = $request->input('applicable_entities');
+        $data['applicable_loan_types'] = null;
+    } else {
+        $data['applicable_entities'] = $request->input('applicable_entities');
+        $data['applicable_loan_types'] = $request->input('applicable_loan_types');
+    }
+
+    if ($request->hasFile('sample_image')) {
+
+        if ($documentMaster->sample_image_url) {
+            Storage::disk('public')
+                ->delete($documentMaster->sample_image_url);
         }
 
-        $documentMaster->update($data);
-
-        return redirect()->route('document-masters.index')
-            ->with('success', 'Document Master updated successfully.');
+        $data['sample_image_url'] = $request->file('sample_image')
+            ->store('document_samples', 'public');
     }
+
+    $documentMaster->update($data);
+
+    return redirect()
+        ->route('document-masters.index')
+        ->with('success', 'Document Master updated successfully.');
+}
 
     public function destroy(DocumentMaster $documentMaster)
     {

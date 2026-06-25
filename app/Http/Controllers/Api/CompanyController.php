@@ -12,7 +12,6 @@ use Illuminate\Support\Arr;
 
 class CompanyController extends Controller
 {
-
     public function index(Request $request)
     {
         $user_id = Auth::id();
@@ -28,7 +27,6 @@ class CompanyController extends Controller
             'data' => $companies
         ], 200);
     }
-
 
     public function show($id)
     {
@@ -51,7 +49,6 @@ class CompanyController extends Controller
             'data' => $company
         ], 200);
     }
-
 
     public function store(Request $request)
     {
@@ -96,7 +93,6 @@ class CompanyController extends Controller
             ], 500);
         }
     }
-
 
     public function update(Request $request, $id)
     {
@@ -143,7 +139,6 @@ class CompanyController extends Controller
         }
     }
 
-
     public function destroy($id)
     {
         $user_id = Auth::id();
@@ -177,14 +172,15 @@ class CompanyController extends Controller
         }
     }
 
-
-
     private function validateCompanyData(Request $request)
     {
         return $request->validate([
             'company_name' => 'required|string|max:255',
             'entity_type' => 'required|string|in:Proprietorship,Partnership,LLP,Pvt Ltd',
             'industry_type' => 'nullable|string|in:Trading,Manufacturing,Service',
+            'cin_number' => 'nullable|string|max:21', 
+            'company_email' => 'nullable|email|max:255', 
+            'company_phone' => 'nullable|string|max:20', 
             'gst_number' => 'nullable|string|max:15',
             'pan_number' => 'required|string|size:10',
             'udyam_registration_number' => 'nullable|string|max:50',
@@ -203,6 +199,12 @@ class CompanyController extends Controller
             'members.*.pan_number' => 'required_with:members|string|size:10',
             'members.*.aadhaar_number' => 'nullable|string|size:12',
             'members.*.mobile' => 'required_with:members|string|max:15',
+            'members.*.email' => 'nullable|email|max:255', 
+            'members.*.dob' => 'nullable|date', 
+            'members.*.din_number' => 'nullable|string|max:8', 
+            'members.*.residential_address' => 'nullable|string', 
+            'members.*.is_authorized_signatory' => 'nullable|boolean', 
+            'members.*.cibil_score' => 'nullable|integer|min:300|max:900', 
             'members.*.ownership_percentage' => 'nullable|numeric|min:0|max:100',
         ]);
     }
@@ -211,6 +213,7 @@ class CompanyController extends Controller
     {
         $membersData = array_map(function ($member) use ($companyId) {
             $member['company_id'] = $companyId;
+            $member['is_authorized_signatory'] = filter_var($member['is_authorized_signatory'] ?? false, FILTER_VALIDATE_BOOLEAN);
             $member['created_at'] = now();
             $member['updated_at'] = now();
             return $member;

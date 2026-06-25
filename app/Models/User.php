@@ -36,4 +36,8 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(UserProfile::class);
     }
+    public function sessions()
+    {
+        return $this->hasMany(DeviceSession::class, 'user_id');
+    }
 }

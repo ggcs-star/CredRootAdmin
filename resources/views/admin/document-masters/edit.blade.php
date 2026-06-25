@@ -66,7 +66,76 @@
                     
                 </div>
             </div>
+{{-- Section 3: Applicability --}}
+<div class="mb-8" id="applicability-section">
+    <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">
+        3. Applicability
+    </h3>
 
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+
+        {{-- Loan Types --}}
+        <div id="loan-types-section"
+            class="bg-slate-50 rounded-xl p-5 border border-slate-200">
+
+            <label class="block text-sm font-bold text-slate-800 mb-3">
+                Applicable Loan Types
+            </label>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                @foreach($loanTypes as $loan)
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox"
+                               name="applicable_loan_types[]"
+                               value="{{ $loan->id }}"
+                               class="w-4 h-4 text-indigo-600 rounded"
+
+                               {{ in_array(
+                                    $loan->id,
+                                    old(
+                                        'applicable_loan_types',
+                                        $documentMaster->applicable_loan_types ?? []
+                                    )
+                               ) ? 'checked' : '' }}>
+
+                        <span>{{ $loan->name }}</span>
+                    </label>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- Entity Types --}}
+        <div id="entity-types-section"
+            class="bg-slate-50 rounded-xl p-5 border border-slate-200">
+
+            <label class="block text-sm font-bold text-slate-800 mb-3">
+                Applicable Entity Types
+            </label>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                @foreach($entityTypes as $entity)
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox"
+                               name="applicable_entities[]"
+                               value="{{ $entity }}"
+                               class="w-4 h-4 text-indigo-600 rounded"
+
+                               {{ in_array(
+                                    $entity,
+                                    old(
+                                        'applicable_entities',
+                                        $documentMaster->applicable_entities ?? []
+                                    )
+                               ) ? 'checked' : '' }}>
+
+                        <span>{{ $entity }}</span>
+                    </label>
+                @endforeach
+            </div>
+        </div>
+
+    </div>
+</div>
             {{-- Section 3: UI & Validation Controls --}}
             <div class="mb-8">
                 <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">3. Validation Controls</h3>
@@ -100,3 +169,39 @@
     </div>
 </div>
 @endsection
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const level = document.querySelector('[name="document_level"]');
+
+    const loanSection =
+        document.getElementById('loan-types-section');
+
+    const entitySection =
+        document.getElementById('entity-types-section');
+
+    function toggleApplicability() {
+
+        const value = level.value;
+
+        if (value === 'user') {
+            loanSection.style.display = 'none';
+            entitySection.style.display = 'none';
+        }
+        else if (value === 'company') {
+            loanSection.style.display = 'none';
+            entitySection.style.display = 'block';
+        }
+        else {
+            loanSection.style.display = 'block';
+            entitySection.style.display = 'block';
+        }
+    }
+
+    toggleApplicability();
+
+    level.addEventListener('change', toggleApplicability);
+});
+</script>
+@endpush

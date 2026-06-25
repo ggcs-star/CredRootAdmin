@@ -8,7 +8,7 @@ use App\Http\Controllers\Admin\LoanTypeController;
 use App\Http\Controllers\Admin\LeadStatusController;
 use App\Http\Controllers\Admin\DocumentMasterController;
 use App\Http\Controllers\Admin\LeadController;
-
+use App\Http\Controllers\Admin\CustomerController;
 Route::redirect('/', '/admin/login');
 Route::prefix('admin')->group(function () {
 
@@ -19,7 +19,8 @@ Route::prefix('admin')->group(function () {
     Route::middleware(['auth', 'role:admin'])->group(function () {
 
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard.index');
-
+        Route::get('/customers', [CustomerController::class, 'index'])->name('admin.customers.index');
+        Route::get('/customers/{id}', [CustomerController::class, 'show'])->name('admin.customers.show');
         Route::post('/logout', [AuthController::class, 'logout'])->name('admin.logout');
 
         Route::resource('banks', BankController::class, ['as' => 'admin']);
