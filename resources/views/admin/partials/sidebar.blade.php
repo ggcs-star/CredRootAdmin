@@ -1,80 +1,63 @@
-<aside
-    class="w-72 bg-gradient-to-b from-blue-700 via-blue-800 to-blue-900 text-white shadow-2xl flex flex-col h-screen sticky top-0 flex-shrink-0 overflow-hidden">
+<aside class="w-72 bg-[#f3f3f3] border-r border-gray-200 flex flex-col h-screen sticky top-0 flex-shrink-0 overflow-hidden z-40">
 
-    <!-- Logo -->
-    <div class="flex items-center gap-3 px-6 h-20 border-b border-white/10">
-
-        <div
-            class="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30">
-            <i class="fas fa-shield-halved text-blue-200 text-xl"></i>
+    <div class="flex items-center gap-3 px-6 h-20 border-b border-gray-200">
+        <div class="w-12 h-12 bg-white border border-gray-200 rounded-2xl flex items-center justify-center shadow-sm">
+            <i class="fas fa-shield-halved text-blue-600 text-xl"></i>
         </div>
-
         <div>
-            <h2 class="text-xl font-bold tracking-tight text-white">
+            <h2 class="text-xl font-black tracking-tight text-slate-800">
                 CredRoot
             </h2>
-
-            <p class="text-[10px] text-blue-200/60 uppercase tracking-[0.2em]">
+            <p class="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-bold">
                 Admin Panel
             </p>
         </div>
-
     </div>
 
-    <!-- Navigation -->
     <nav class="flex-1 overflow-y-auto px-4 py-5 sidebar-scroll">
 
-        <!-- Dashboard -->
         <a href="{{ route('admin.dashboard.index') }}"
-            class="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/20 text-white font-medium shadow-lg shadow-blue-500/20 mb-2">
-
-            <i class="fas fa-th-large w-5 text-center text-blue-200"></i>
-
+            class="flex items-center gap-3 px-4 py-3 rounded-xl bg-white text-blue-600 font-bold shadow-sm border border-gray-100 mb-2">
+            <i class="fas fa-th-large w-5 text-center text-blue-600"></i>
             <span>Dashboard</span>
-
-            <span class="ml-auto bg-white/20 px-2.5 py-0.5 rounded-full text-xs text-white">
+            <span class="ml-auto bg-blue-50 px-2.5 py-0.5 rounded-full text-xs text-blue-600 border border-blue-100">
                 12
             </span>
         </a>
 
-        <div class="border-t border-white/10 my-5"></div>
+        <div class="border-t border-gray-200 my-5"></div>
 
-        <!-- Management -->
-        <p class="px-4 mb-2 text-[10px] uppercase tracking-[0.2em] text-blue-200/50 font-semibold">
+        <p class="px-4 mb-2 text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">
             Management
         </p>
 
         <a href="{{ route('leads.index') }}" class="sidebar-link {{ request()->routeIs('leads.*') ? 'active' : '' }}">
             <i class="fas fa-file-invoice"></i>
             <span>Loan Applications</span>
-
-            <span class="ml-auto bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded-full text-xs">
+            <span class="ml-auto bg-amber-50 text-amber-600 border border-amber-200 px-2 py-0.5 rounded-full text-xs font-bold">
                 {{ \App\Models\Lead::count() }}
             </span>
         </a>
 
         <a href="{{ route('admin.customers.index') }}" class="sidebar-link {{ request()->routeIs('admin.customers.*') ? 'active' : '' }}">
-    <i class="fas fa-users"></i>
-    <span>Customers</span>
-
-    <span class="ml-auto text-xs text-blue-200/50">
-        {{ \App\Models\User::role('user')->count() }}
-    </span>
-</a>
+            <i class="fas fa-users"></i>
+            <span>Customers</span>
+            <span class="ml-auto text-xs font-bold text-slate-400">
+                {{ \App\Models\User::role('user')->count() }}
+            </span>
+        </a>
 
         <a href="{{ route('admin.banks.index') }}" class="sidebar-link">
             <i class="fas fa-university"></i>
             <span>Lenders</span>
-
-            <span class="ml-auto text-xs text-blue-200/50">
+            <span class="ml-auto text-xs font-bold text-slate-400">
                 32
             </span>
         </a>
 
-        <div class="border-t border-white/10 my-5"></div>
+        <div class="border-t border-gray-200 my-5"></div>
 
-        <!-- Master Data -->
-        <p class="px-4 mb-2 text-[10px] uppercase tracking-[0.2em] text-blue-200/50 font-semibold">
+        <p class="px-4 mb-2 text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">
             Master Data
         </p>
 
@@ -93,10 +76,9 @@
             <span>Document Masters</span>
         </a>
 
-        <div class="border-t border-white/10 my-5"></div>
+        <div class="border-t border-gray-200 my-5"></div>
 
-        <!-- Analytics -->
-        <p class="px-4 mb-2 text-[10px] uppercase tracking-[0.2em] text-blue-200/50 font-semibold">
+        <p class="px-4 mb-2 text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">
             Analytics
         </p>
 
@@ -108,16 +90,14 @@
         <a href="#" class="sidebar-link">
             <i class="fas fa-chart-pie"></i>
             <span>Analytics</span>
-
-            <span class="ml-auto bg-green-400/20 text-green-300 px-2 py-0.5 rounded-full text-xs">
+            <span class="ml-auto bg-green-50 text-green-600 border border-green-200 px-2 py-0.5 rounded-full text-xs font-bold">
                 New
             </span>
         </a>
 
-        <div class="border-t border-white/10 my-5"></div>
+        <div class="border-t border-gray-200 my-5"></div>
 
-        <!-- System -->
-        <p class="px-4 mb-2 text-[10px] uppercase tracking-[0.2em] text-blue-200/50 font-semibold">
+        <p class="px-4 mb-2 text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">
             System
         </p>
 
@@ -133,59 +113,50 @@
 
     </nav>
 
-    <!-- Footer -->
-    <div class="border-t border-white/10 p-4">
-
-        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-3">
-
+    <div class="border-t border-gray-200 p-4">
+        <div class="bg-white rounded-xl p-3 border border-gray-200 shadow-sm hover:border-blue-300 transition cursor-pointer">
             <div class="flex items-center gap-3">
-
-                <div
-                    class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-sm font-bold text-white shadow-lg shadow-blue-500/30">
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-sm font-bold text-blue-700 border border-blue-200">
                     {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 2)) }}
                 </div>
-
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm font-semibold text-white truncate">
+                    <p class="text-sm font-bold text-slate-800 truncate">
                         {{ auth()->user()->name ?? 'Admin' }}
                     </p>
-
-                    <p class="text-[11px] text-blue-200/50 truncate">
+                    <p class="text-[11px] text-slate-500 font-medium truncate">
                         {{ auth()->user()->email ?? 'admin@credroot.com' }}
                     </p>
                 </div>
-
-                <button class="text-blue-200/40 hover:text-white transition">
+                <button class="text-slate-400 hover:text-blue-600 transition">
                     <i class="fas fa-chevron-right"></i>
                 </button>
-
             </div>
-
         </div>
-
     </div>
-
 </aside>
 
 <style>
+    /* Updated for Light Theme */
     .sidebar-link {
         display: flex;
         align-items: center;
         gap: 12px;
         padding: 12px 16px;
         border-radius: 12px;
-        color: rgba(255, 255, 255, 0.7);
+        color: #64748b; /* slate-500 */
         font-size: 14px;
-        font-weight: 500;
+        font-weight: 600;
         transition: all 0.25s ease;
         margin-bottom: 4px;
         position: relative;
     }
 
     .sidebar-link:hover {
-        background: rgba(255, 255, 255, 0.12);
-        color: #ffffff;
+        background: #ffffff;
+        color: #2563eb; /* blue-600 */
         transform: translateX(4px);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        border: 1px solid #f1f5f9;
     }
 
     .sidebar-link::before {
@@ -196,7 +167,7 @@
         transform: translateY(-50%);
         width: 3px;
         height: 0;
-        background: linear-gradient(to bottom, #60a5fa, #3b82f6);
+        background: #2563eb;
         border-radius: 0 4px 4px 0;
         transition: height 0.3s ease;
     }
@@ -206,9 +177,10 @@
     }
 
     .sidebar-link.active {
-        background: rgba(255, 255, 255, 0.15);
-        color: #ffffff;
-        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+        background: #ffffff;
+        color: #2563eb;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.08);
+        border: 1px solid #e2e8f0;
     }
 
     .sidebar-link.active::before {
@@ -218,16 +190,13 @@
     .sidebar-link i {
         width: 20px;
         text-align: center;
-        color: rgba(255, 255, 255, 0.5);
+        color: #94a3b8; /* slate-400 */
         transition: color 0.3s ease;
     }
 
-    .sidebar-link:hover i {
-        color: #93c5fd;
-    }
-
+    .sidebar-link:hover i,
     .sidebar-link.active i {
-        color: #93c5fd;
+        color: #2563eb;
     }
 
     .sidebar-scroll {
@@ -237,22 +206,5 @@
 
     .sidebar-scroll::-webkit-scrollbar {
         display: none;
-    }
-
-    /* Active state indicator pulse animation */
-    @keyframes pulse-dot {
-
-        0%,
-        100% {
-            opacity: 1;
-        }
-
-        50% {
-            opacity: 0.5;
-        }
-    }
-
-    .status-pulse {
-        animation: pulse-dot 2s ease-in-out infinite;
     }
 </style>

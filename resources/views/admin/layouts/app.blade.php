@@ -15,7 +15,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
         }
     </style>
 </head>
-<body class="bg-slate-100">
+<body class="bg-gray-50 min-h-screen text-white">
 
     <div class="flex min-h-screen">
         <!-- Sidebar -->
