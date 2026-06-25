@@ -15,10 +15,8 @@ class UserProfileController extends Controller
     {
         $user = Auth::user();
 
-        // 1. Fetch User Profile
         $profile = UserProfile::where('user_id', $user->id)->first();
 
-        // 2. Fetch Personal Level Documents
         $userMasterDocs = DocumentMaster::where('status', 1)
             ->where('document_level', 'user')
             ->get();
@@ -29,7 +27,6 @@ class UserProfileController extends Controller
             ->get()
             ->groupBy('document_master_id');
 
-        // 3. Evaluate Documents Status
         $personalDocuments = $this->evaluateDocuments($userMasterDocs, $userUploads);
 
         if (!$profile) {
@@ -40,7 +37,7 @@ class UserProfileController extends Controller
                     'user' => $user,
                     'profile' => null,
                     'current_step' => $user->current_step,
-                    'personal_documents' => $personalDocuments // Naya addition
+                    'personal_documents' => $personalDocuments 
                 ]
             ], 200);
         }
@@ -52,7 +49,7 @@ class UserProfileController extends Controller
                 'user' => $user,
                 'profile' => $profile,
                 'current_step' => $user->current_step,
-                'personal_documents' => $personalDocuments // Naya addition
+                'personal_documents' => $personalDocuments 
             ]
         ], 200);
     }
